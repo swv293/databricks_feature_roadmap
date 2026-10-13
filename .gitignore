@@ -1,0 +1,36 @@
+# Python
+.venv/
+venv/
+env/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ipynb_checkpoints/
+
+# Node
+node_modules/
+.next/
+dist/
+build/
+
+# Databricks / local state
+.databricks/
+*.db-journal
+
+# Secrets / env
+.env
+.env.*
+*.pem
+*.key
+.databrickscfg
+
+# OS / editor
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/
+
+# Claude Code local settings
+.claude/settings.local.json

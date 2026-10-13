@@ -1,0 +1,1429 @@
+[
+ {
+  "review_id": "TRB-2026-010",
+  "feature_key": "Unity Catalog@Platform & Governance",
+  "status": "Approved",
+  "dbx_phase_at_decision": "GA",
+  "approved_scope": "PHI",
+  "introduced_meeting_id": "TRBM-2026-05-05",
+  "decision_meeting_id": "TRBM-2026-05-05",
+  "initial_submission_date": "2026-04-16",
+  "requesting_business_unit": "Enterprise Data Platform",
+  "primary_reviewer_role": "Data Governance Lead",
+  "use_cases": [
+   "Enterprise governance",
+   "Cross-workspace lineage",
+   "Unified access control"
+  ],
+  "review_context": "Enterprise Data Platform submitted UC as the foundational governance layer for the lakehouse. The TRB evaluated whether the metastore design and cross-region limitations meet the payer's multi-workspace governance model.",
+  "identified_risks": [
+   "Metastore region lock-in limits disaster recovery",
+   "Cross-catalog access complexity",
+   "Admin burden for large permission matrices"
+  ],
+  "mitigations": [
+   "Delta Sharing used for cross-region workloads",
+   "Governance Hub provides centralized policy console",
+   "Role-based access templates for common personas"
+  ],
+  "decision_rationale": "UC is approved as the payer's single governance layer over all catalogs and PHI. The metastore region limitation is accepted as tolerable; cross-region PHI access will use Delta Sharing with explicit approvals.",
+  "conditions": [],
+  "open_questions": [],
+  "rereview_trigger": "Annual re-review",
+  "next_review_date": "2027-05-05",
+  "controls": [
+   {
+    "framework": "HIPAA-Security-Rule",
+    "control_id": "164.312(a)(2)(i)",
+    "control_name": "Unique user identification",
+    "status": "Satisfied"
+   },
+   {
+    "framework": "NIST-800-53-R5",
+    "control_id": "AC-2",
+    "control_name": "Account Management",
+    "status": "Satisfied"
+   },
+   {
+    "framework": "HITRUST-CSF",
+    "control_id": "01.a",
+    "control_name": "Information and Asset Management",
+    "status": "Satisfied"
+   }
+  ]
+ },
+ {
+  "review_id": "TRB-2026-011",
+  "feature_key": "Audit logs@Platform & Governance",
+  "status": "Approved",
+  "dbx_phase_at_decision": "GA",
+  "approved_scope": "PHI",
+  "introduced_meeting_id": "TRBM-2026-05-05",
+  "decision_meeting_id": "TRBM-2026-05-05",
+  "initial_submission_date": "2026-04-18",
+  "requesting_business_unit": "Information Security",
+  "primary_reviewer_role": "CISO",
+  "use_cases": [
+   "Audit trail for compliance",
+   "Breach-impact investigations",
+   "User activity tracking"
+  ],
+  "review_context": "Information Security presented UC audit logs as the immutable evidence source for HIPAA and SOC 2 audits. Retention, tamper-proof storage, and query performance were evaluated.",
+  "identified_risks": [
+   "Log volume for high-scale environments",
+   "Query complexity for forensics",
+   "Long-term retention cost"
+  ],
+  "mitigations": [
+   "Audit logs stored in managed UC tables with VACUUM restrictions",
+   "System tables provide efficient log queries",
+   "Tiered retention policy: hot 90 days, cold 7 years"
+  ],
+  "decision_rationale": "Audit logs are approved as the payer's audit source. Retention follows the enterprise records-retention policy (7 years), implemented by the platform team through audit-log delivery and system-table exports; all production workspaces must deliver audit logs.",
+  "conditions": [],
+  "open_questions": [],
+  "rereview_trigger": "Annual re-review or regulatory change",
+  "next_review_date": "2027-05-05",
+  "controls": [
+   {
+    "framework": "HIPAA-Security-Rule",
+    "control_id": "164.312(b)",
+    "control_name": "Audit controls",
+    "status": "Satisfied"
+   },
+   {
+    "framework": "NIST-800-53-R5",
+    "control_id": "AU-2",
+    "control_name": "Audit Events",
+    "status": "Satisfied"
+   },
+   {
+    "framework": "HITRUST-CSF",
+    "control_id": "02.e",
+    "control_name": "Protection of Audit Information",
+    "status": "Satisfied"
+   }
+  ]
+ },
+ {
+  "review_id": "TRB-2026-012",
+  "feature_key": "Salesforce@Ingestion",
+  "status": "Under Review",
+  "dbx_phase_at_decision": "GA",
+  "approved_scope": "None",
+  "introduced_meeting_id": "TRBM-2026-10-06",
+  "decision_meeting_id": null,
+  "initial_submission_date": "2026-09-17",
+  "requesting_business_unit": "Member Experience",
+  "primary_reviewer_role": "Chief Privacy Officer",
+  "use_cases": [
+   "Member 360 golden record",
+   "Care team CRM sync",
+   "Case management analytics"
+  ],
+  "review_context": "Member Experience submitted the Salesforce connector (Lakeflow Connect) to sync Health Cloud and Service Cloud member and case data for a 360-degree member view. TRB is reviewing OAuth scope and PII field mapping to ensure minimum-necessary extraction.",
+  "identified_risks": [
+   "Overly broad OAuth scope pulls unnecessary PII",
+   "Case comments may contain sensitive clinical notes",
+   "CRM deletion/archival timing vs. lakehouse retention"
+  ],
+  "mitigations": [
+   "OAuth scopes limited to standard Health Cloud objects",
+   "PII field mapping reviewed per data dictionary",
+   "Case comment fields excluded from initial sync"
+  ],
+  "decision_rationale": "Under review. TRB asked: (1) Confirm final OAuth scope matches minimum-necessary and is documented. (2) Provide sample of member records synced to validate PII filtering. (3) Define CRM deletion sync behavior to align with 7-year retention. Follow-up at 2026-10-20.",
+  "conditions": [],
+  "open_questions": [
+   "What is the final OAuth scope for member and case objects, and how does it match minimum-necessary?",
+   "Provide 10-row sample of member records to verify PII extraction boundaries.",
+   "How will Salesforce record deletions cascade to the lakehouse, and what retention period applies?"
+  ],
+  "rereview_trigger": "OAuth scope change or new use case",
+  "next_review_date": "2026-10-20",
+  "controls": [
+   {
+    "framework": "HIPAA-Security-Rule",
+    "control_id": "164.312(a)(2)(i)",
+    "control_name": "Unique user identification",
+    "status": "Partially Satisfied"
+   },
+   {
+    "framework": "NIST-800-53-R5",
+    "control_id": "SI-12",
+    "control_name": "Information Handling and Retention",
+    "status": "Partially Satisfied"
+   },
+   {
+    "framework": "HITRUST-CSF",
+    "control_id": "08.a",
+    "control_name": "Data Protection and Privacy",
+    "status": "Partially Satisfied"
+   }
+  ]
+ },
+ {
+  "review_id": "TRB-2026-013",
+  "feature_key": "Auto Loader@Ingestion",
+  "status": "Approved",
+  "dbx_phase_at_decision": "GA",
+  "approved_scope": "PHI",
+  "introduced_meeting_id": "TRBM-2026-06-02",
+  "decision_meeting_id": "TRBM-2026-06-02",
+  "initial_submission_date": "2026-05-14",
+  "requesting_business_unit": "Claims Operations",
+  "primary_reviewer_role": "Platform Engineering Lead",
+  "use_cases": [
+   "837 EDI claim incremental ingestion",
+   "Daily eligibility file drops",
+   "Recurring partner feeds"
+  ],
+  "review_context": "Claims Operations selected Auto Loader for continuous 837 EDI claim ingest and daily eligibility feeds. TRB evaluated file discovery mechanisms and guaranteed delivery semantics.",
+  "identified_risks": [
+   "File notification latency for high-volume drops",
+   "Directory listing scalability at 10M+ files",
+   "Duplicate handling edge cases"
+  ],
+  "mitigations": [
+   "File notification mode used for high-volume feeds",
+   "Schema inference handles field additions automatically",
+   "Duplicate detection via file path and checksum"
+  ],
+  "decision_rationale": "Auto Loader is approved as the standard incremental ingestion path for claims and eligibility. File notification mode is required for high-volume EDI drops; directory listing is acceptable for lower-volume feeds.",
+  "conditions": [],
+  "open_questions": [],
+  "rereview_trigger": "Partner feed change or volume 10x increase",
+  "next_review_date": "2027-06-02",
+  "controls": [
+   {
+    "framework": "HIPAA-Security-Rule",
+    "control_id": "164.308(a)(1)(ii)(B)",
+    "control_name": "Information access management",
+    "status": "Satisfied"
+   },
+   {
+    "framework": "NIST-800-53-R5",
+    "control_id": "CM-6",
+    "control_name": "Configuration Settings",
+    "status": "Satisfied"
+   },
+   {
+    "framework": "HITRUST-CSF",
+    "control_id": "09.b",
+    "control_name": "Secure Development and Management",
+    "status": "Satisfied"
+   }
+  ]
+ },
+ {
+  "review_id": "TRB-2026-014",
+  "feature_key": "Lakeflow Declarative Pipelines (DLT)@Pipelines & Data Engineering",
+  "status": "Approved",
+  "dbx_phase_at_decision": "GA",
+  "approved_scope": "PHI",
+  "introduced_meeting_id": "TRBM-2026-06-02",
+  "decision_meeting_id": "TRBM-2026-06-02",
+  "initial_submission_date": "2026-05-15",
+  "requesting_business_unit": "Claims Operations",
+  "primary_reviewer_role": "Platform Engineering Lead",
+  "use_cases": [
+   "Claims medallion curation",
+   "Quality expectations enforcement",
+   "Member identity matching"
+  ],
+  "review_context": "Claims Operations proposed DLT as the standard for building medallion (bronze/silver/gold) pipelines. TRB reviewed data-quality expectations, SCD handling, and audit capabilities.",
+  "identified_risks": [
+   "Expectation failures hide data-quality issues if quarantine not monitored",
+   "SCD Type 2 complexity for member history",
+   "Pipeline dependencies not visible in lineage"
+  ],
+  "mitigations": [
+   "Expectations route bad rows to quarantine tables with alerts",
+   "APPLY CHANGES handles SCD Type 2 natively",
+   "DLT lineage integrates with UC governance hub"
+  ],
+  "decision_rationale": "DLT is approved as the enterprise standard for building and curating trusted claims and member tables. Expectation failures must be monitored; quarantine tables are part of the standard architecture.",
+  "conditions": [],
+  "open_questions": [],
+  "rereview_trigger": "Major DLT architecture change",
+  "next_review_date": "2027-06-02",
+  "controls": [
+   {
+    "framework": "HIPAA-Security-Rule",
+    "control_id": "164.312(a)(2)(ii)",
+    "control_name": "Encryption and decryption",
+    "status": "Satisfied"
+   },
+   {
+    "framework": "NIST-800-53-R5",
+    "control_id": "SC-28",
+    "control_name": "Protection of Information at Rest",
+    "status": "Satisfied"
+   },
+   {
+    "framework": "HITRUST-CSF",
+    "control_id": "09.c",
+    "control_name": "Change Management",
+    "status": "Satisfied"
+   }
+  ]
+ },
+ {
+  "review_id": "TRB-2026-015",
+  "feature_key": "Lakeflow Jobs (Workflows)@Pipelines & Data Engineering",
+  "status": "Approved",
+  "dbx_phase_at_decision": "GA",
+  "approved_scope": "PHI",
+  "introduced_meeting_id": "TRBM-2026-06-02",
+  "decision_meeting_id": "TRBM-2026-06-02",
+  "initial_submission_date": "2026-05-16",
+  "requesting_business_unit": "Claims Operations",
+  "primary_reviewer_role": "Enterprise Architect",
+  "use_cases": [
+   "Daily claims processing orchestration",
+   "Multi-step reconciliation workflows",
+   "Reporting job scheduling"
+  ],
+  "review_context": "Claims Operations and Finance jointly submitted Workflows (Lakeflow Jobs) as the enterprise orchestration engine. TRB evaluated task types, error handling, and audit logging.",
+  "identified_risks": [
+   "Job dependencies not captured if manual coordination still used",
+   "Timeout handling for long-running claims joins",
+   "Audit trail for task-level retries"
+  ],
+  "mitigations": [
+   "Job DAG enforces explicit task dependencies",
+   "Timeout limits configured per task type",
+   "Each task execution logged to audit tables"
+  ],
+  "decision_rationale": "Workflows is approved as the enterprise standard for all scheduled and multi-step workloads. All production claims, eligibility, and reporting jobs must use Workflows.",
+  "conditions": [],
+  "open_questions": [],
+  "rereview_trigger": "Annual re-review",
+  "next_review_date": "2027-06-02",
+  "controls": [
+   {
+    "framework": "HIPAA-Security-Rule",
+    "control_id": "164.312(a)(2)(iii)",
+    "control_name": "Logging and monitoring",
+    "status": "Satisfied"
+   },
+   {
+    "framework": "NIST-800-53-R5",
+    "control_id": "AU-12",
+    "control_name": "Audit Record Generation",
+    "status": "Satisfied"
+   },
+   {
+    "framework": "HITRUST-CSF",
+    "control_id": "10.e",
+    "control_name": "System Monitoring",
+    "status": "Satisfied"
+   }
+  ]
+ },
+ {
+  "review_id": "TRB-2026-016",
+  "feature_key": "Delta Lake@Storage & Formats",
+  "status": "Approved",
+  "dbx_phase_at_decision": "GA",
+  "approved_scope": "PHI",
+  "introduced_meeting_id": "TRBM-2026-06-16",
+  "decision_meeting_id": "TRBM-2026-06-16",
+  "initial_submission_date": "2026-05-28",
+  "requesting_business_unit": "Enterprise Data Platform",
+  "primary_reviewer_role": "Enterprise Architect",
+  "use_cases": [
+   "All claims and member storage",
+   "Time travel for audit and recovery",
+   "ACID upserts for incremental updates"
+  ],
+  "review_context": "Enterprise Data Platform designated Delta as the default table format for all PHI workloads. TRB reviewed ACID guarantees, time-travel retention, and interoperability.",
+  "identified_risks": [
+   "Time-travel retention increases storage cost",
+   "Format lock-in vs. open formats",
+   "Upgrade complexity for large tables"
+  ],
+  "mitigations": [
+   "VACUUM policy: 180-day retention for PHI, 30 days for analytics",
+   "Iceberg interoperability via UniForm",
+   "Delta version checks automated in CI/CD"
+  ],
+  "decision_rationale": "Delta Lake is approved as the default table format. All new tables use Delta unless approved for Iceberg. Time-travel and VACUUM retention are set per table to meet the records-retention policy.",
+  "conditions": [],
+  "open_questions": [],
+  "rereview_trigger": "Annual re-review",
+  "next_review_date": "2027-06-16",
+  "controls": [
+   {
+    "framework": "HIPAA-Security-Rule",
+    "control_id": "164.312(b)",
+    "control_name": "Audit controls",
+    "status": "Satisfied"
+   },
+   {
+    "framework": "NIST-800-53-R5",
+    "control_id": "SC-7",
+    "control_name": "Boundary Protection",
+    "status": "Satisfied"
+   },
+   {
+    "framework": "HITRUST-CSF",
+    "control_id": "09.a",
+    "control_name": "System Development and Maintenance",
+    "status": "Satisfied"
+   }
+  ]
+ },
+ {
+  "review_id": "TRB-2026-017",
+  "feature_key": "Lakebase (Postgres OLTP)@Storage & Formats",
+  "status": "Under Review",
+  "dbx_phase_at_decision": "GA",
+  "approved_scope": "None",
+  "introduced_meeting_id": "TRBM-2026-10-06",
+  "decision_meeting_id": null,
+  "initial_submission_date": "2026-09-19",
+  "requesting_business_unit": "Member Experience",
+  "primary_reviewer_role": "Chief Privacy Officer",
+  "use_cases": [
+   "Member portal app backing store",
+   "Low-latency care-team reference data",
+   "Operational app transactions"
+  ],
+  "review_context": "Member Experience submitted Lakebase (managed Postgres OLTP) for powering member-facing apps with low-latency serving next to the lakehouse. TRB is reviewing backup/recovery, retention, and PHI-at-rest encryption.",
+  "identified_risks": [
+   "Automatic backups may retain deleted PHI",
+   "Retention policy not aligned to HIPAA 6-year minimum",
+   "CMK coverage for Postgres storage"
+  ],
+  "mitigations": [
+   "Backup retention tuned to 7-year hold period",
+   "Automated backup lifecycle per retention policy",
+   "CMK applied to all Postgres instances"
+  ],
+  "decision_rationale": "Under review. TRB asked: (1) Confirm backup retention policy covers 7 years for regulated data. (2) Verify CMK encryption covers Postgres storage at rest. (3) Provide recovery RTO/RPO guarantees. Follow-up at 2026-10-27.",
+  "conditions": [],
+  "open_questions": [
+   "What is the backup retention policy for Lakebase instances handling PHI, and how is it enforced?",
+   "Does CMK encryption cover Postgres storage at rest, and how is key rotation managed?",
+   "What are the recovery RTO and RPO guarantees for Postgres backups?"
+  ],
+  "rereview_trigger": "Backup policy change or new retention requirement",
+  "next_review_date": "2026-10-27",
+  "controls": [
+   {
+    "framework": "HIPAA-Security-Rule",
+    "control_id": "164.308(a)(7)(i)",
+    "control_name": "Backup procedures",
+    "status": "Partially Satisfied"
+   },
+   {
+    "framework": "NIST-800-53-R5",
+    "control_id": "CP-9",
+    "control_name": "System Backup",
+    "status": "Partially Satisfied"
+   },
+   {
+    "framework": "HITRUST-CSF",
+    "control_id": "12.a",
+    "control_name": "Disaster Recovery and Business Continuity",
+    "status": "Partially Satisfied"
+   }
+  ]
+ },
+ {
+  "review_id": "TRB-2026-018",
+  "feature_key": "Databricks SQL@SQL & BI Analytics",
+  "status": "Approved",
+  "dbx_phase_at_decision": "GA",
+  "approved_scope": "PHI",
+  "introduced_meeting_id": "TRBM-2026-06-16",
+  "decision_meeting_id": "TRBM-2026-06-16",
+  "initial_submission_date": "2026-05-29",
+  "requesting_business_unit": "Analytics Operations",
+  "primary_reviewer_role": "Data Governance Lead",
+  "use_cases": [
+   "BI tool connections (Tableau, Looker)",
+   "Ad-hoc analyst queries",
+   "Scheduled reporting SQL"
+  ],
+  "review_context": "Analytics Operations selected Databricks SQL (serverless warehouse) as the serving layer for analysts and BI tools querying PHI. TRB reviewed row/column filter enforcement and audit logging.",
+  "identified_risks": [
+   "Filters bypassed if analysts query storage directly",
+   "Warehouse concurrency limits at scale",
+   "Audit log volume for high-query-rate environments"
+  ],
+  "mitigations": [
+   "External table access restricted; SQL warehouse required",
+   "Warehouse queues configured per team SLA",
+   "Audit sampling for cost control; 100% for PHI modifications"
+  ],
+  "decision_rationale": "Databricks SQL is approved as the enterprise serving layer for BI and analytics. All BI tool connections must go through SQL warehouses. Row and column filters are enforced at query time.",
+  "conditions": [],
+  "open_questions": [],
+  "rereview_trigger": "Annual re-review",
+  "next_review_date": "2027-06-16",
+  "controls": [
+   {
+    "framework": "HIPAA-Security-Rule",
+    "control_id": "164.312(a)(2)(i)",
+    "control_name": "Unique user identification",
+    "status": "Satisfied"
+   },
+   {
+    "framework": "NIST-800-53-R5",
+    "control_id": "AC-3",
+    "control_name": "Access Enforcement",
+    "status": "Satisfied"
+   },
+   {
+    "framework": "HITRUST-CSF",
+    "control_id": "01.a",
+    "control_name": "Information and Asset Management",
+    "status": "Satisfied"
+   }
+  ]
+ },
+ {
+  "review_id": "TRB-2026-019",
+  "feature_key": "AI/BI Dashboards@SQL & BI Analytics",
+  "status": "Approved",
+  "dbx_phase_at_decision": "GA",
+  "approved_scope": "PHI",
+  "introduced_meeting_id": "TRBM-2026-06-16",
+  "decision_meeting_id": "TRBM-2026-06-16",
+  "initial_submission_date": "2026-05-30",
+  "requesting_business_unit": "Analytics Operations",
+  "primary_reviewer_role": "Data Governance Lead",
+  "use_cases": [
+   "Executive dashboards with HEDIS/STARS metrics",
+   "Quality-measure tracking",
+   "Member cohort analysis"
+  ],
+  "review_context": "Analytics Operations submitted AI/BI Dashboards for internal governance and reporting. TRB evaluated row/column filter enforcement in dashboards and viewer access controls.",
+  "identified_risks": [
+   "Filters not reapplied after refresh",
+   "Viewer impersonation leaks cross-team data",
+   "Cache stale PHI"
+  ],
+  "mitigations": [
+   "Filters re-evaluated on each refresh",
+   "Viewer access uses UC identities, no impersonation",
+   "Cache TTL set to 15 minutes for PHI dashboards"
+  ],
+  "decision_rationale": "AI/BI Dashboards are approved for internal governance and reporting with PHI filters. Dashboards must be built on UC tables with row/column masks enabled.",
+  "conditions": [],
+  "open_questions": [],
+  "rereview_trigger": "Annual re-review",
+  "next_review_date": "2027-06-16",
+  "controls": [
+   {
+    "framework": "HIPAA-Security-Rule",
+    "control_id": "164.312(a)(2)(i)",
+    "control_name": "Unique user identification",
+    "status": "Satisfied"
+   },
+   {
+    "framework": "NIST-800-53-R5",
+    "control_id": "AC-2",
+    "control_name": "Account Management",
+    "status": "Satisfied"
+   },
+   {
+    "framework": "HITRUST-CSF",
+    "control_id": "08.b",
+    "control_name": "Audit and Accountability",
+    "status": "Satisfied"
+   }
+  ]
+ },
+ {
+  "review_id": "TRB-2026-020",
+  "feature_key": "AI/BI Genie@SQL & BI Analytics",
+  "status": "Under Review",
+  "dbx_phase_at_decision": "GA",
+  "approved_scope": "None",
+  "introduced_meeting_id": "TRBM-2026-10-06",
+  "decision_meeting_id": null,
+  "initial_submission_date": "2026-09-20",
+  "requesting_business_unit": "Analytics Operations",
+  "primary_reviewer_role": "Chief Privacy Officer",
+  "use_cases": [
+   "Analyst self-serve Q&A over PHI",
+   "HEDIS/STARS metric queries",
+   "Ad-hoc member cohort analysis"
+  ],
+  "review_context": "Analytics Operations submitted AI/BI Genie (natural-language Q&A) as an umbrella review for analyst self-serve access to PHI. Genie One (TRB-2026-005) is an existing approved use case. TRB is evaluating whether UC row/column masks and filters are proven to hold in Genie-generated SQL.",
+  "identified_risks": [
+   "Generated SQL bypasses row/column filters",
+   "LLM prompt injection exposes schema or data",
+   "Genie answer cache leaks PHI between users"
+  ],
+  "mitigations": [
+   "Genie SQL generation goes through UC masking validation",
+   "User prompt validation and sanitization before LLM",
+   "Query result cache isolated per user with TTL"
+  ],
+  "decision_rationale": "Under review. TRB asked: (1) Provide proof that UC row/column masks are applied in Genie-generated SQL for 5 test queries. (2) Demonstrate prompt injection mitigation. (3) Confirm cache isolation. Genie One has its own review (TRB-2026-005, Approved with Conditions); this umbrella review covers broader AI/BI Genie agent use with PHI. Follow-up at 2026-10-25.",
+  "conditions": [],
+  "open_questions": [
+   "Provide test results showing UC row/column masks applied in Genie-generated SQL.",
+   "What prompt injection attacks have been tested and mitigated?",
+   "How is Genie query result cache isolated per user, and what is the TTL?"
+  ],
+  "rereview_trigger": "Genie architecture change or new foundation model",
+  "next_review_date": "2026-10-25",
+  "controls": [
+   {
+    "framework": "HIPAA-Security-Rule",
+    "control_id": "164.312(a)(2)(i)",
+    "control_name": "Unique user identification",
+    "status": "Partially Satisfied"
+   },
+   {
+    "framework": "NIST-800-53-R5",
+    "control_id": "SI-10",
+    "control_name": "Information System Monitoring",
+    "status": "Partially Satisfied"
+   },
+   {
+    "framework": "HITRUST-CSF",
+    "control_id": "08.a",
+    "control_name": "Data Protection and Privacy",
+    "status": "Partially Satisfied"
+   }
+  ]
+ },
+ {
+  "review_id": "TRB-2026-021",
+  "feature_key": "MLflow@AI / ML",
+  "status": "Approved",
+  "dbx_phase_at_decision": "GA",
+  "approved_scope": "PHI",
+  "introduced_meeting_id": "TRBM-2026-06-16",
+  "decision_meeting_id": "TRBM-2026-06-16",
+  "initial_submission_date": "2026-05-31",
+  "requesting_business_unit": "Research & Innovation",
+  "primary_reviewer_role": "Platform Engineering Lead",
+  "use_cases": [
+   "Risk and readmission model training",
+   "Model versioning and governance",
+   "Production model promotion"
+  ],
+  "review_context": "Research & Innovation selected MLflow as the system of record for ML model lifecycle (training, versioning, governance). TRB reviewed experiment tracking, parameter audit, and model promotion controls.",
+  "identified_risks": [
+   "Training data lineage not captured",
+   "Model artifact storage not versioned",
+   "Parameter drift across training runs"
+  ],
+  "mitigations": [
+   "MLflow experiments linked to UC tables via lineage",
+   "Model artifacts stored in UC volumes with versioning",
+   "Parameter comparison provided in MLflow UI"
+  ],
+  "decision_rationale": "MLflow is approved as the enterprise model registry and lifecycle system. All trained models must be logged to MLflow; promotion to production requires model-card sign-off.",
+  "conditions": [],
+  "open_questions": [],
+  "rereview_trigger": "Annual re-review",
+  "next_review_date": "2027-06-16",
+  "controls": [
+   {
+    "framework": "HIPAA-Security-Rule",
+    "control_id": "164.308(a)(3)(ii)(B)",
+    "control_name": "Workforce security",
+    "status": "Satisfied"
+   },
+   {
+    "framework": "NIST-800-53-R5",
+    "control_id": "CM-9",
+    "control_name": "Configuration Management Plan",
+    "status": "Satisfied"
+   },
+   {
+    "framework": "HITRUST-CSF",
+    "control_id": "09.c",
+    "control_name": "Change Management",
+    "status": "Satisfied"
+   }
+  ]
+ },
+ {
+  "review_id": "TRB-2026-022",
+  "feature_key": "Model Serving@AI / ML",
+  "status": "Under Review",
+  "dbx_phase_at_decision": "GA",
+  "approved_scope": "None",
+  "introduced_meeting_id": "TRBM-2026-10-06",
+  "decision_meeting_id": null,
+  "initial_submission_date": "2026-09-21",
+  "requesting_business_unit": "Research & Innovation",
+  "primary_reviewer_role": "CISO",
+  "use_cases": [
+   "Real-time risk scoring on incoming claims",
+   "Fraud detection APIs",
+   "Member eligibility real-time check"
+  ],
+  "review_context": "Research & Innovation submitted Model Serving for deploying trained models as low-latency APIs (e.g., real-time risk scoring on claims). TRB is reviewing network isolation and audit logging before scoring PHI.",
+  "identified_risks": [
+   "API endpoint exposed to internet without auth",
+   "Model input/output not logged for audit",
+   "Inference latency violates claims SLA"
+  ],
+  "mitigations": [
+   "Model endpoints run in private network with VPC endpoint",
+   "Request/response logging to audit tables with sampling",
+   "P99 latency target: <100ms for risk scoring"
+  ],
+  "decision_rationale": "Under review. TRB asked: (1) Confirm endpoints run in private network accessible only via VPC endpoint. (2) Demonstrate audit logging for inference requests. (3) Validate latency meets claims-processing SLA. Follow-up at 2026-10-23.",
+  "conditions": [],
+  "open_questions": [
+   "Are Model Serving endpoints restricted to private network access via VPC endpoint?",
+   "What inference request/response data is logged, and where is it stored?",
+   "What are the P50/P99 latency targets for risk-scoring APIs, and are they validated?"
+  ],
+  "rereview_trigger": "New model deployment or scoring use case",
+  "next_review_date": "2026-10-23",
+  "controls": [
+   {
+    "framework": "HIPAA-Security-Rule",
+    "control_id": "164.312(a)(2)(ii)",
+    "control_name": "Encryption and decryption",
+    "status": "Partially Satisfied"
+   },
+   {
+    "framework": "NIST-800-53-R5",
+    "control_id": "SC-7",
+    "control_name": "Boundary Protection",
+    "status": "Partially Satisfied"
+   },
+   {
+    "framework": "HITRUST-CSF",
+    "control_id": "10.c",
+    "control_name": "Log Reviews, Monitoring and Alerting",
+    "status": "Partially Satisfied"
+   }
+  ]
+ },
+ {
+  "review_id": "TRB-2026-023",
+  "feature_key": "AI Functions (SQL)@Generative AI & Agents",
+  "status": "Under Review",
+  "dbx_phase_at_decision": "GA",
+  "approved_scope": "None",
+  "introduced_meeting_id": "TRBM-2026-10-06",
+  "decision_meeting_id": null,
+  "initial_submission_date": "2026-09-22",
+  "requesting_business_unit": "Analytics Operations",
+  "primary_reviewer_role": "Chief Privacy Officer",
+  "use_cases": [
+   "Appeal letter classification and summarization",
+   "Diagnosis code extraction from clinical notes",
+   "Member sentiment from feedback surveys"
+  ],
+  "review_context": "Analytics Operations submitted AI Functions (SQL) for calling foundation models directly from SQL to classify, extract, and summarize at scale. TRB is reviewing which foundation models are approved for PHI-bearing prompts.",
+  "identified_risks": [
+   "LLM training data includes customer prompts and outputs",
+   "Uncontrolled model drift affects classification accuracy",
+   "Prompt injection reveals PII in classification result"
+  ],
+  "mitigations": [
+   "Foundation models vetted for no-training-data-retention guarantees",
+   "Model versioning controlled via Databricks Foundation Model API",
+   "Input sanitization and prompt injection validation"
+  ],
+  "decision_rationale": "Under review. TRB asked: (1) Which foundation models have been approved by Legal/Privacy for PHI? (2) Provide no-training-data-retention guarantee from model provider(s). (3) Demonstrate input sanitization for classification prompts. Follow-up at 2026-10-24.",
+  "conditions": [],
+  "open_questions": [
+   "Which foundation models (Anthropic, OpenAI, etc.) are approved for PHI-bearing prompts?",
+   "What is the no-training-data-retention guarantee from each approved provider?",
+   "What input sanitization is applied to prompts before sending to foundation models?"
+  ],
+  "rereview_trigger": "New foundation model or use case",
+  "next_review_date": "2026-10-24",
+  "controls": [
+   {
+    "framework": "HIPAA-Security-Rule",
+    "control_id": "164.308(a)(1)(ii)(a)",
+    "control_name": "Security management process",
+    "status": "Partially Satisfied"
+   },
+   {
+    "framework": "NIST-800-53-R5",
+    "control_id": "AU-2",
+    "control_name": "Audit Events",
+    "status": "Partially Satisfied"
+   },
+   {
+    "framework": "HITRUST-CSF",
+    "control_id": "08.a",
+    "control_name": "Data Protection and Privacy",
+    "status": "Partially Satisfied"
+   }
+  ]
+ },
+ {
+  "review_id": "TRB-2026-024",
+  "feature_key": "Clean Rooms@Sharing & Collaboration",
+  "status": "Under Review",
+  "dbx_phase_at_decision": "GA",
+  "approved_scope": "None",
+  "introduced_meeting_id": "TRBM-2026-10-06",
+  "decision_meeting_id": null,
+  "initial_submission_date": "2026-09-23",
+  "requesting_business_unit": "Provider Strategy",
+  "primary_reviewer_role": "Chief Privacy Officer",
+  "use_cases": [
+   "Payer-provider joint analytics (de-identified)",
+   "Network analysis without data exchange",
+   "Quality improvement collaborative projects"
+  ],
+  "review_context": "Provider Strategy submitted Clean Rooms for joint analytics with provider networks where neither party exposes raw PHI. TRB is reviewing PHI handling in multi-party outputs and approval workflows.",
+  "identified_risks": [
+   "De-identification logic insufficient for re-identification risk",
+   "Query results leak member-level PHI through aggregates",
+   "Collaborator dataset inadvertently contains PII"
+  ],
+  "mitigations": [
+   "De-identification rules reviewed by Chief Privacy Officer per-engagement",
+   "Output tables limited to summary statistics (counts, rates)",
+   "Collaborator dataset scan for PII before upload"
+  ],
+  "decision_rationale": "Under review. TRB asked: (1) Define de-identification thresholds and sign-off process. (2) Provide sample output tables and risk assessment. (3) Confirm Clean Room approval workflow includes CPO review. Follow-up at 2026-10-28.",
+  "conditions": [],
+  "open_questions": [
+   "What de-identification thresholds and rules apply to Clean Room outputs?",
+   "Provide sample output tables and re-identification risk assessment.",
+   "What is the Clean Room approval workflow, and who must sign off?"
+  ],
+  "rereview_trigger": "New collaborator or use case change",
+  "next_review_date": "2026-10-28",
+  "controls": [
+   {
+    "framework": "HIPAA-Security-Rule",
+    "control_id": "164.502(b)",
+    "control_name": "De-identification",
+    "status": "Partially Satisfied"
+   },
+   {
+    "framework": "NIST-800-53-R5",
+    "control_id": "SI-20",
+    "control_name": "Information Disclosure",
+    "status": "Partially Satisfied"
+   },
+   {
+    "framework": "HITRUST-CSF",
+    "control_id": "08.a",
+    "control_name": "Data Protection and Privacy",
+    "status": "Partially Satisfied"
+   }
+  ]
+ },
+ {
+  "review_id": "TRB-2026-025",
+  "feature_key": "Secure Cluster Connectivity (NPIP)@Security & Networking",
+  "status": "Approved",
+  "dbx_phase_at_decision": "GA",
+  "approved_scope": "PHI",
+  "introduced_meeting_id": "TRBM-2026-04-21",
+  "decision_meeting_id": "TRBM-2026-04-21",
+  "initial_submission_date": "2026-04-02",
+  "requesting_business_unit": "Information Security",
+  "primary_reviewer_role": "CISO",
+  "use_cases": [
+   "No-public-IP compute for PHI workloads",
+   "Network segmentation baseline",
+   "Reduced internet egress exposure"
+  ],
+  "review_context": "Information Security presented Secure Cluster Connectivity (no-public-IP / NPIP) as a baseline network control for production PHI workloads. TRB reviewed routing and internet access constraints.",
+  "identified_risks": [
+   "Public IPs still assigned if not configured correctly",
+   "Internet egress via NAT leaks IP source",
+   "Egress filtering not enforced"
+  ],
+  "mitigations": [
+   "Cluster policies enforce no-public-IP setting",
+   "NAT gateway restricted to approved destinations",
+   "Egress firewall rules in network policies"
+  ],
+  "decision_rationale": "Secure Cluster Connectivity is approved and required for all production PHI workloads. All production clusters must have public IPs disabled.",
+  "conditions": [],
+  "open_questions": [],
+  "rereview_trigger": "Annual re-review",
+  "next_review_date": "2027-04-21",
+  "controls": [
+   {
+    "framework": "HIPAA-Security-Rule",
+    "control_id": "164.308(a)(4)(ii)(b)",
+    "control_name": "System activity review",
+    "status": "Satisfied"
+   },
+   {
+    "framework": "NIST-800-53-R5",
+    "control_id": "SC-7",
+    "control_name": "Boundary Protection",
+    "status": "Satisfied"
+   },
+   {
+    "framework": "HITRUST-CSF",
+    "control_id": "10.a",
+    "control_name": "Audit and Accountability",
+    "status": "Satisfied"
+   }
+  ]
+ },
+ {
+  "review_id": "TRB-2026-026",
+  "feature_key": "PrivateLink (front-end & back-end)@Security & Networking",
+  "status": "Approved",
+  "dbx_phase_at_decision": "GA",
+  "approved_scope": "PHI",
+  "introduced_meeting_id": "TRBM-2026-04-21",
+  "decision_meeting_id": "TRBM-2026-04-21",
+  "initial_submission_date": "2026-04-03",
+  "requesting_business_unit": "Information Security",
+  "primary_reviewer_role": "CISO",
+  "use_cases": [
+   "Private control-plane connectivity to Databricks",
+   "Private data-plane traffic routing",
+   "Off-public-internet data residency"
+  ],
+  "review_context": "Information Security proposed PrivateLink (AWS PrivateLink) for front-end and back-end connectivity, keeping all Databricks traffic off the public internet. TRB reviewed endpoint configuration and traffic isolation.",
+  "identified_risks": [
+   "Front-end PrivateLink alone allows data egress via internet",
+   "Back-end PrivateLink adds cost and complexity",
+   "NAT gateway still needed for non-Databricks egress"
+  ],
+  "mitigations": [
+   "Dual PrivateLink (front + back) required for PHI workloads",
+   "Network policies restrict back-end routing",
+   "NAT gateway egress filtered to approved destinations"
+  ],
+  "decision_rationale": "PrivateLink is approved as a core requirement for the payer's PHI environment. Dual PrivateLink (front and back) is required for production PHI. Single PrivateLink is acceptable for non-PHI analytics.",
+  "conditions": [],
+  "open_questions": [],
+  "rereview_trigger": "Annual re-review",
+  "next_review_date": "2027-04-21",
+  "controls": [
+   {
+    "framework": "HIPAA-Security-Rule",
+    "control_id": "164.312(a)(1)",
+    "control_name": "Access controls",
+    "status": "Satisfied"
+   },
+   {
+    "framework": "NIST-800-53-R5",
+    "control_id": "SC-7",
+    "control_name": "Boundary Protection",
+    "status": "Satisfied"
+   },
+   {
+    "framework": "HITRUST-CSF",
+    "control_id": "10.b",
+    "control_name": "Audit and Accountability",
+    "status": "Satisfied"
+   }
+  ]
+ },
+ {
+  "review_id": "TRB-2026-027",
+  "feature_key": "Customer-managed keys (CMK)@Security & Networking",
+  "status": "Approved",
+  "dbx_phase_at_decision": "GA",
+  "approved_scope": "PHI",
+  "introduced_meeting_id": "TRBM-2026-04-21",
+  "decision_meeting_id": "TRBM-2026-04-21",
+  "initial_submission_date": "2026-04-04",
+  "requesting_business_unit": "Information Security",
+  "primary_reviewer_role": "CISO",
+  "use_cases": [
+   "Key ownership for regulated data",
+   "Encryption at rest with payer-controlled keys",
+   "Key rotation and revocation"
+  ],
+  "review_context": "Information Security selected Customer-Managed Keys (CMK) for encrypting PHI at rest. TRB reviewed key lifecycle, HSM support, and key rotation automation.",
+  "identified_risks": [
+   "Key loss disables all encrypted data",
+   "Rotation complexity for multi-region deployments",
+   "KMS authorization bypass"
+  ],
+  "mitigations": [
+   "Keys backed up in AWS KMS secure vault",
+   "Automated rotation via KMS key policy",
+   "KMS access controlled via IAM + UC external locations"
+  ],
+  "decision_rationale": "Customer-managed keys are approved and required for all PHI data at rest. Encryption must use CMK; AWS default keys are not acceptable for PHI.",
+  "conditions": [],
+  "open_questions": [],
+  "rereview_trigger": "Annual re-review",
+  "next_review_date": "2027-04-21",
+  "controls": [
+   {
+    "framework": "HIPAA-Security-Rule",
+    "control_id": "164.312(a)(2)(ii)",
+    "control_name": "Encryption and decryption",
+    "status": "Satisfied"
+   },
+   {
+    "framework": "NIST-800-53-R5",
+    "control_id": "SC-12",
+    "control_name": "Cryptographic Key Establishment and Management",
+    "status": "Satisfied"
+   },
+   {
+    "framework": "HITRUST-CSF",
+    "control_id": "06.a",
+    "control_name": "Cryptography",
+    "status": "Satisfied"
+   }
+  ]
+ },
+ {
+  "review_id": "TRB-2026-028",
+  "feature_key": "Compliance security profile@Security & Networking",
+  "status": "Approved",
+  "dbx_phase_at_decision": "GA",
+  "approved_scope": "PHI",
+  "introduced_meeting_id": "TRBM-2026-04-21",
+  "decision_meeting_id": "TRBM-2026-04-21",
+  "initial_submission_date": "2026-04-05",
+  "requesting_business_unit": "Information Security",
+  "primary_reviewer_role": "Compliance Officer",
+  "use_cases": [
+   "HIPAA posture for all PHI workloads",
+   "Hardened compute images",
+   "Enhanced monitoring and logging"
+  ],
+  "review_context": "Information Security presented the Compliance Security Profile (CSP) as the master switch for HIPAA/PCI/FedRAMP posture. TRB reviewed hardened images, audit requirements, and permanent enablement.",
+  "identified_risks": [
+   "Permanent CSP flag blocks certain features",
+   "Image updates may have performance impact",
+   "Audit logging volume increases cost"
+  ],
+  "mitigations": [
+   "CSP feature matrix documented (limits known upfront)",
+   "Performance impact quantified (<5% CPU overhead)",
+   "Audit sampling tuned to balance cost vs. visibility"
+  ],
+  "decision_rationale": "The Compliance Security Profile is approved and required for all PHI workloads. Once enabled on a workspace, it cannot be disabled. All production PHI workspaces must have CSP enabled.",
+  "conditions": [],
+  "open_questions": [],
+  "rereview_trigger": "Annual re-review",
+  "next_review_date": "2027-04-21",
+  "controls": [
+   {
+    "framework": "HIPAA-Security-Rule",
+    "control_id": "164.308(a)(1)(i)",
+    "control_name": "Security management process",
+    "status": "Satisfied"
+   },
+   {
+    "framework": "NIST-800-53-R5",
+    "control_id": "CM-6",
+    "control_name": "Configuration Settings",
+    "status": "Satisfied"
+   },
+   {
+    "framework": "HITRUST-CSF",
+    "control_id": "09.a",
+    "control_name": "System Development and Maintenance",
+    "status": "Satisfied"
+   }
+  ]
+ },
+ {
+  "review_id": "TRB-2026-029",
+  "feature_key": "HIPAA@Security & Networking",
+  "status": "Approved",
+  "dbx_phase_at_decision": "GA",
+  "approved_scope": "PHI",
+  "introduced_meeting_id": "TRBM-2026-05-19",
+  "decision_meeting_id": "TRBM-2026-05-19",
+  "initial_submission_date": "2026-05-08",
+  "requesting_business_unit": "Information Security",
+  "primary_reviewer_role": "Compliance Officer",
+  "use_cases": [
+   "HIPAA-regulated data handling",
+   "Protected health information workloads",
+   "HIPAA audit and compliance reporting"
+  ],
+  "review_context": "Compliance Officer submitted the HIPAA profile as the specific security and privacy posture for the payer's regulated data. TRB reviewed controls mapping to 45 CFR 164 Privacy and Security Rules.",
+  "identified_risks": [
+   "Controls incomplete for all HIPAA subparts",
+   "Breach notification workflow not in Databricks",
+   "Workforce training requirements outside platform"
+  ],
+  "mitigations": [
+   "Controls matrix maps UC features to 45 CFR 164 controls",
+   "Breach procedures documented in payer playbook (out-of-band)",
+   "SSO/SCIM enforces identity provider training compliance"
+  ],
+  "decision_rationale": "The HIPAA profile is approved as the payer's standard security and privacy posture for PHI. All PHI workspaces must enable the compliance security profile with the HIPAA compliance standard selected, under the signed BAA.",
+  "conditions": [],
+  "open_questions": [],
+  "rereview_trigger": "Annual re-review or regulatory change",
+  "next_review_date": "2027-05-19",
+  "controls": [
+   {
+    "framework": "HIPAA-Security-Rule",
+    "control_id": "164.308(a)(1)(i)",
+    "control_name": "Security management process",
+    "status": "Satisfied"
+   },
+   {
+    "framework": "HIPAA-Security-Rule",
+    "control_id": "164.312(a)(1)",
+    "control_name": "Access controls",
+    "status": "Satisfied"
+   },
+   {
+    "framework": "HIPAA-Security-Rule",
+    "control_id": "164.312(b)",
+    "control_name": "Audit controls",
+    "status": "Satisfied"
+   }
+  ]
+ },
+ {
+  "review_id": "TRB-2026-030",
+  "feature_key": "Enhanced Security Monitoring@Security & Networking",
+  "status": "Approved",
+  "dbx_phase_at_decision": "GA",
+  "approved_scope": "PHI",
+  "introduced_meeting_id": "TRBM-2026-05-19",
+  "decision_meeting_id": "TRBM-2026-05-19",
+  "initial_submission_date": "2026-05-09",
+  "requesting_business_unit": "Information Security",
+  "primary_reviewer_role": "CISO",
+  "use_cases": [
+   "Malware detection on compute",
+   "File integrity monitoring",
+   "Vulnerability scanning for patches"
+  ],
+  "review_context": "Information Security selected Enhanced Security Monitoring (ESM) to add malware, file-integrity, and vulnerability monitoring on compute handling PHI. TRB reviewed agent overhead and alert handling.",
+  "identified_risks": [
+   "Monitoring agent impacts cluster performance",
+   "False positives overwhelm security team",
+   "Classic-compute-only limitation"
+  ],
+  "mitigations": [
+   "Agent overhead <5% CPU; tuned sampling rates",
+   "Alert thresholds and allowlists reduce false positives",
+   "Serverless compute ESM roadmap exists but not yet approved"
+  ],
+  "decision_rationale": "Enhanced Security Monitoring is approved for production PHI workloads on classic compute. ESM is required for all production clusters running PHI. ESM coverage for serverless compute is to be confirmed with the account team.",
+  "conditions": [],
+  "open_questions": [],
+  "rereview_trigger": "Annual re-review",
+  "next_review_date": "2027-05-19",
+  "controls": [
+   {
+    "framework": "HIPAA-Security-Rule",
+    "control_id": "164.308(a)(5)(ii)(A)",
+    "control_name": "Log-in monitoring",
+    "status": "Satisfied"
+   },
+   {
+    "framework": "NIST-800-53-R5",
+    "control_id": "SI-4",
+    "control_name": "System Monitoring",
+    "status": "Satisfied"
+   },
+   {
+    "framework": "HITRUST-CSF",
+    "control_id": "10.c",
+    "control_name": "Log Reviews, Monitoring and Alerting",
+    "status": "Satisfied"
+   }
+  ]
+ },
+ {
+  "review_id": "TRB-2026-031",
+  "feature_key": "SSO / SCIM@Security & Networking",
+  "status": "Approved",
+  "dbx_phase_at_decision": "GA",
+  "approved_scope": "PHI",
+  "introduced_meeting_id": "TRBM-2026-05-05",
+  "decision_meeting_id": "TRBM-2026-05-05",
+  "initial_submission_date": "2026-04-17",
+  "requesting_business_unit": "Information Security",
+  "primary_reviewer_role": "CISO",
+  "use_cases": [
+   "Centralized identity via IdP",
+   "Automatic user provisioning and deprovisioning",
+   "Single sign-on across Databricks"
+  ],
+  "review_context": "Information Security proposed SSO and SCIM (via Okta) for centralized identity management and automatic deprovisioning. TRB reviewed IdP failover and access revocation timing.",
+  "identified_risks": [
+   "SSO outage blocks Databricks access",
+   "SCIM sync lag delays deprovisioning",
+   "Local accounts bypass SSO controls"
+  ],
+  "mitigations": [
+   "IdP redundancy via multiple Okta instances",
+   "SCIM sync runs every 15 minutes; max 15-min lag",
+   "Cluster policies forbid local user creation"
+  ],
+  "decision_rationale": "SSO and SCIM are approved and required for enterprise access control. All users must authenticate via Okta SSO. Local accounts are prohibited for PHI workspaces.",
+  "conditions": [],
+  "open_questions": [],
+  "rereview_trigger": "Annual re-review",
+  "next_review_date": "2027-05-05",
+  "controls": [
+   {
+    "framework": "HIPAA-Security-Rule",
+    "control_id": "164.312(a)(2)(i)",
+    "control_name": "Unique user identification",
+    "status": "Satisfied"
+   },
+   {
+    "framework": "NIST-800-53-R5",
+    "control_id": "IA-2",
+    "control_name": "Authentication",
+    "status": "Satisfied"
+   },
+   {
+    "framework": "HITRUST-CSF",
+    "control_id": "05.a",
+    "control_name": "Access Control",
+    "status": "Satisfied"
+   }
+  ]
+ },
+ {
+  "review_id": "TRB-2026-032",
+  "feature_key": "Databricks CLI@Apps & Developer Tools",
+  "status": "Approved",
+  "dbx_phase_at_decision": "GA",
+  "approved_scope": "PHI",
+  "introduced_meeting_id": "TRBM-2026-05-19",
+  "decision_meeting_id": "TRBM-2026-05-19",
+  "initial_submission_date": "2026-05-10",
+  "requesting_business_unit": "Enterprise Data Platform",
+  "primary_reviewer_role": "Platform Engineering Lead",
+  "use_cases": [
+   "Scriptable platform automation",
+   "This feature tracker weekly refresh job",
+   "Infrastructure-as-code tooling"
+  ],
+  "review_context": "Enterprise Data Platform submitted Databricks CLI for automation and this tracker's weekly refresh workflow. TRB reviewed credential handling and audit logging.",
+  "identified_risks": [
+   "API token lifetime and rotation",
+   "CLI audit trail sparse vs. web console",
+   "Token compromise in CI/CD pipelines"
+  ],
+  "mitigations": [
+   "API tokens limited to service principals with short TTL",
+   "CLI calls logged via audit tables",
+   "GitHub Actions tokens use temporary credentials"
+  ],
+  "decision_rationale": "The Databricks CLI is approved for platform-team tooling and automation. CLI is restricted to service-principal identities. Human API tokens are discouraged.",
+  "conditions": [],
+  "open_questions": [],
+  "rereview_trigger": "Annual re-review",
+  "next_review_date": "2027-05-19",
+  "controls": [
+   {
+    "framework": "HIPAA-Security-Rule",
+    "control_id": "164.312(a)(2)(i)",
+    "control_name": "Unique user identification",
+    "status": "Satisfied"
+   },
+   {
+    "framework": "NIST-800-53-R5",
+    "control_id": "AC-2",
+    "control_name": "Account Management",
+    "status": "Satisfied"
+   },
+   {
+    "framework": "HITRUST-CSF",
+    "control_id": "05.a",
+    "control_name": "Access Control",
+    "status": "Satisfied"
+   }
+  ]
+ },
+ {
+  "review_id": "TRB-2026-033",
+  "feature_key": "Asset Bundles (DABs)@Apps & Developer Tools",
+  "status": "Approved",
+  "dbx_phase_at_decision": "GA",
+  "approved_scope": "PHI",
+  "introduced_meeting_id": "TRBM-2026-05-19",
+  "decision_meeting_id": "TRBM-2026-05-19",
+  "initial_submission_date": "2026-05-11",
+  "requesting_business_unit": "Enterprise Data Platform",
+  "primary_reviewer_role": "Enterprise Architect",
+  "use_cases": [
+   "Versioned job and pipeline deployment",
+   "Repeatable infrastructure-as-code releases",
+   "Audit trail of infrastructure changes"
+  ],
+  "review_context": "Enterprise Data Platform selected Asset Bundles (DABs) as the enterprise deployment standard for jobs, pipelines, and apps. TRB reviewed version control integration and rollback procedures.",
+  "identified_risks": [
+   "DAB validation doesn't catch breaking changes",
+   "Rollback complexity for large bundles",
+   "Production deployment coordination"
+  ],
+  "mitigations": [
+   "DAB syntax validation in pre-commit hooks",
+   "Automated rollback via Git revert",
+   "Deployment windows scheduled weekly"
+  ],
+  "decision_rationale": "Asset Bundles are approved as the enterprise deployment standard. All production jobs and pipelines must be deployed via DABs. Manual resource creation is prohibited.",
+  "conditions": [],
+  "open_questions": [],
+  "rereview_trigger": "Annual re-review",
+  "next_review_date": "2027-05-19",
+  "controls": [
+   {
+    "framework": "HIPAA-Security-Rule",
+    "control_id": "164.308(a)(1)(ii)(b)",
+    "control_name": "Information access management",
+    "status": "Satisfied"
+   },
+   {
+    "framework": "NIST-800-53-R5",
+    "control_id": "CM-3",
+    "control_name": "Configuration Change Control",
+    "status": "Satisfied"
+   },
+   {
+    "framework": "HITRUST-CSF",
+    "control_id": "09.c",
+    "control_name": "Change Management",
+    "status": "Satisfied"
+   }
+  ]
+ },
+ {
+  "review_id": "TRB-2026-034",
+  "feature_key": "Serverless compute@Compute",
+  "status": "Approved with Conditions",
+  "dbx_phase_at_decision": "GA",
+  "approved_scope": "PHI (after all conditions close)",
+  "introduced_meeting_id": "TRBM-2026-06-16",
+  "decision_meeting_id": "TRBM-2026-06-16",
+  "initial_submission_date": "2026-05-27",
+  "requesting_business_unit": "Finance",
+  "primary_reviewer_role": "Enterprise Architect",
+  "use_cases": [
+   "Elastic batch processing for claims jobs",
+   "Cost optimization for bursty workloads",
+   "Instant compute for on-demand queries"
+  ],
+  "review_context": "Finance selected Serverless Compute to reduce idle costs for bursty claims and reporting jobs. TRB is approving with conditions on compliance security profile validation and cost attribution.",
+  "identified_risks": [
+   "Compliance security profile not available on serverless",
+   "Cost spikes from unlimited autoscaling",
+   "Multi-tenant noisy-neighbor performance"
+  ],
+  "mitigations": [
+   "Compliance security profile roadmap confirms PHI support Q4 2026",
+   "Spend controls via serverless job capacity reservations",
+   "Isolated pools for high-priority workloads"
+  ],
+  "decision_rationale": "Serverless Compute is approved with conditions. PHI workloads require the compliance security profile enabled before production use. Condition COND-034-1 requires CSP GA on serverless; COND-034-2 requires cost attribution implementation; COND-034-3 requires performance baseline. Follow-up at 2026-08-16.",
+  "conditions": [
+   {
+    "title": "Compliance Security Profile (CSP) GA on Serverless",
+    "text": "Databricks must release CSP support for serverless compute. PHI workloads are blocked until CSP is GA and validated on serverless.",
+    "rationale": "PHI workloads require CSP hardening; CSP is not yet available on serverless.",
+    "due_date": "2026-12-31",
+    "verification_status": "Open",
+    "verification_method": "Databricks product release notes and feature availability documentation"
+   },
+   {
+    "title": "Cost Attribution to Claims Operations",
+    "text": "Implement cost allocation for serverless jobs so Claims Operations can track DBU spend. Tagging must enable per-job and per-team cost reporting.",
+    "rationale": "Finance needs visibility into serverless costs to optimize and attribute to business units.",
+    "due_date": "2026-08-16",
+    "verification_status": "In Progress",
+    "verification_method": "Cost analysis report showing serverless job costs tagged by team and workload"
+   },
+   {
+    "title": "Performance Baseline for Claims Jobs",
+    "text": "Run 5 pilot claims jobs on serverless (100-500GB datasets) and document P50/P99 latency vs. classic compute. Startup overhead must be <5 min.",
+    "rationale": "Claims processing SLAs require validated latency to ensure serverless meets production requirements.",
+    "due_date": "2026-07-16",
+    "verification_status": "Open",
+    "verification_method": "Performance benchmark report with job latency distributions and startup times"
+   }
+  ],
+  "open_questions": [],
+  "rereview_trigger": "CSP on serverless GA or Compute strategy change",
+  "next_review_date": "2026-08-16",
+  "controls": [
+   {
+    "framework": "HIPAA-Security-Rule",
+    "control_id": "164.308(a)(1)(i)",
+    "control_name": "Security management process",
+    "status": "Partially Satisfied"
+   },
+   {
+    "framework": "NIST-800-53-R5",
+    "control_id": "CM-6",
+    "control_name": "Configuration Settings",
+    "status": "Partially Satisfied"
+   },
+   {
+    "framework": "HITRUST-CSF",
+    "control_id": "09.a",
+    "control_name": "System Development and Maintenance",
+    "status": "Partially Satisfied"
+   }
+  ]
+ },
+ {
+  "review_id": "TRB-2026-035",
+  "feature_key": "Classic compute@Compute",
+  "status": "Approved",
+  "dbx_phase_at_decision": "GA",
+  "approved_scope": "PHI",
+  "introduced_meeting_id": "TRBM-2026-06-30",
+  "decision_meeting_id": "TRBM-2026-06-30",
+  "initial_submission_date": "2026-06-10",
+  "requesting_business_unit": "Enterprise Data Platform",
+  "primary_reviewer_role": "Platform Engineering Lead",
+  "use_cases": [
+   "Customer-managed clusters for specific workloads",
+   "Dedicated cluster pools for teams",
+   "GPU compute for ML training"
+  ],
+  "review_context": "Enterprise Data Platform maintains Classic Compute as a strategic compute option for workloads requiring specific instance types or network controls not available via serverless.",
+  "identified_risks": [
+   "Idle cluster cost drift",
+   "Cluster configuration drift vs. policy",
+   "Dependency on legacy cluster manager"
+  ],
+  "mitigations": [
+   "Cluster auto-termination policies enforced",
+   "Cluster policies lock critical settings",
+   "Gradual migration to serverless as gaps close"
+  ],
+  "decision_rationale": "Classic Compute is approved for production workloads where serverless is not suitable. Cluster policies are required; all production clusters must use an approved Databricks Runtime LTS version, with Photon where supported.",
+  "conditions": [],
+  "open_questions": [],
+  "rereview_trigger": "Annual re-review",
+  "next_review_date": "2027-06-30",
+  "controls": [
+   {
+    "framework": "HIPAA-Security-Rule",
+    "control_id": "164.308(a)(4)(ii)(c)",
+    "control_name": "Protection systems",
+    "status": "Satisfied"
+   },
+   {
+    "framework": "NIST-800-53-R5",
+    "control_id": "CM-6",
+    "control_name": "Configuration Settings",
+    "status": "Satisfied"
+   },
+   {
+    "framework": "HITRUST-CSF",
+    "control_id": "09.d",
+    "control_name": "Information Security Event Management",
+    "status": "Satisfied"
+   }
+  ]
+ }
+]

@@ -1,0 +1,125 @@
+resources:
+  jobs:
+    feature_tracker_monthly_docs:
+      name: "Databricks Feature Tracker: monthly documentation check"
+      description: >
+        Reads each feature's Databricks doc page (and any dedicated limitations page it links to),
+        uses an LLM to extract that feature's limitations, fills empty limitations, holds any
+        replacement of curated text for a person, fixes moved doc links, flags dead ones, and
+        republishes the tracker page. Never writes phase or TRB status.
+
+      schedule:
+        quartz_cron_expression: "0 0 7 ? * MON#1"   # first Monday of the month, 07:00 (after the weekly run)
+        timezone_id: America/New_York
+        pause_status: ${var.schedule_pause}
+
+      max_concurrent_runs: 1
+      timeout_seconds: 3600
+      email_notifications:
+        on_failure: [ "${var.notify_email}" ]
+        on_success: [ "${var.notify_email}" ]
+
+      environments:
+        - environment_key: default
+          spec:
+            client: "4"
+            dependencies:
+              - databricks-sdk>=0.40
+
+      tasks:
+        - task_key: ensure_tables
+          environment_key: default
+          spark_python_task:
+            python_file: ../src/tasks/ensure_tables.py
+            parameters: &common
+              - --src
+              - ${workspace.file_path}/refresh-job/src
+              - --bundle-root
+              - ${workspace.file_path}
+              - --catalog
+              - ${var.catalog}
+              - --schema
+              - ${var.schema}
+              - --trb-schema
+              - ${var.trb_schema}
+              - --run-id
+              - "{{job.run_id}}"
+
+        - task_key: check_docs
+          depends_on: [ { task_key: ensure_tables } ]
+          environment_key: default
+          max_retries: 1
+          min_retry_interval_millis: 300000
+          spark_python_task:
+            python_file: ../src/tasks/check_docs.py
+            parameters:
+              - --src
+              - ${workspace.file_path}/refresh-job/src
+              - --bundle-root
+              - ${workspace.file_path}
+              - --catalog
+              - ${var.catalog}
+              - --schema
+              - ${var.schema}
+              - --trb-schema
+              - ${var.trb_schema}
+              - --run-id
+              - "{{job.run_id}}"
+              - --llm-endpoint
+              - ${var.llm_endpoint}
+
+        - task_key: apply_doc_changes
+          depends_on: [ { task_key: check_docs } ]
+          environment_key: default
+          spark_python_task:
+            python_file: ../src/tasks/apply_doc_changes.py
+            parameters: *common
+
+        - task_key: publish_site
+          depends_on: [ { task_key: apply_doc_changes } ]
+          environment_key: default
+          spark_python_task:
+            python_file: ../src/tasks/publish_site.py
+            parameters:
+              - --src
+              - ${workspace.file_path}/refresh-job/src
+              - --bundle-root
+              - ${workspace.file_path}
+              - --catalog
+              - ${var.catalog}
+              - --schema
+              - ${var.schema}
+              - --trb-schema
+              - ${var.trb_schema}
+              - --run-id
+              - "{{job.run_id}}"
+              # !!! REMOVE IN PRODUCTION: mock-up banner. Set var.mockup_banner to "off" (see databricks.yml).
+              - --mockup-banner
+              - ${var.mockup_banner}
+
+        - task_key: publish_github
+          depends_on: [ { task_key: publish_site } ]
+          environment_key: default
+          spark_python_task:
+            python_file: ../src/tasks/publish_github.py
+            parameters:
+              - --src
+              - ${workspace.file_path}/refresh-job/src
+              - --bundle-root
+              - ${workspace.file_path}
+              - --catalog
+              - ${var.catalog}
+              - --schema
+              - ${var.schema}
+              - --trb-schema
+              - ${var.trb_schema}
+              - --run-id
+              - "{{job.run_id}}"
+              - --github-repo
+              - ${var.github_repo}
+              - --pages-branch
+              - ${var.pages_branch}
+              - --secret-scope
+              - ${var.secret_scope}
+              - --secret-key
+              - github_token

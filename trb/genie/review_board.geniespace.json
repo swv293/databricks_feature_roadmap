@@ -1,0 +1,777 @@
+{
+ "version": 2,
+ "config": {
+  "sample_questions": [
+   {
+    "id": "32236d8d7ad16bbd077545a4a7131353",
+    "question": [
+     "How long does the TRB take to reach a decision on average?"
+    ]
+   },
+   {
+    "id": "3a9912db03f28e61f3ce2c31a7d1d8b8",
+    "question": [
+     "Which exceptions were denied?"
+    ]
+   },
+   {
+    "id": "4a2f0f9aee216a77ce0a1c55396073f0",
+    "question": [
+     "Can we use Genie One with PHI data?"
+    ]
+   },
+   {
+    "id": "5df0396f349eb513d36f8db03a5eb70c",
+    "question": [
+     "What did the TRB decide at the June 16, 2026 meeting?"
+    ]
+   },
+   {
+    "id": "6111f3519181be7f1824f8a02e8a4350",
+    "question": [
+     "What is the TRB approval rate by domain?"
+    ]
+   },
+   {
+    "id": "64a59384cd2df694b38007395bb6e4c4",
+    "question": [
+     "Why was Kafka-compatible APIs rejected?"
+    ]
+   },
+   {
+    "id": "73dea70f6f77ae85b7eafb871bdf5ebd",
+    "question": [
+     "What documents exist for the SQL Server connector review?"
+    ]
+   },
+   {
+    "id": "7f24c693aa391ce14aaa8d4298d03497",
+    "question": [
+     "What open conditions does Serverless compute have?"
+    ]
+   },
+   {
+    "id": "8e1be16b33e7c99ee70f57ad1a5da784",
+    "question": [
+     "Which reviews are still pending a TRB decision?"
+    ]
+   },
+   {
+    "id": "d5d326ae5580f837d9462e3542c080d6",
+    "question": [
+     "Which pending reviews came from Clinical Analytics?"
+    ]
+   },
+   {
+    "id": "d89189a361f450b120e727c7d45d868c",
+    "question": [
+     "Which HIPAA controls are mapped to Customer-managed keys?"
+    ]
+   },
+   {
+    "id": "f16981b72c70cf9ef716f38b848c5cf0",
+    "question": [
+     "Which Databricks features are approved for PHI?"
+    ]
+   }
+  ]
+ },
+ "data_sources": {
+  "tables": [
+   {
+    "identifier": "serverless_stable_swv01_catalog.trb.approval_conditions",
+    "column_configs": [
+     {
+      "column_name": "condition_id",
+      "enable_format_assistance": true,
+      "enable_entity_matching": true
+     },
+     {
+      "column_name": "condition_title",
+      "enable_format_assistance": true,
+      "enable_entity_matching": true
+     },
+     {
+      "column_name": "due_date",
+      "enable_format_assistance": true,
+      "enable_entity_matching": false
+     },
+     {
+      "column_name": "verification_method",
+      "enable_format_assistance": true,
+      "enable_entity_matching": true
+     },
+     {
+      "column_name": "verification_status",
+      "enable_format_assistance": true,
+      "enable_entity_matching": true
+     }
+    ]
+   },
+   {
+    "identifier": "serverless_stable_swv01_catalog.trb.control_mappings",
+    "column_configs": [
+     {
+      "column_name": "control_framework",
+      "enable_format_assistance": true,
+      "enable_entity_matching": true
+     },
+     {
+      "column_name": "control_id",
+      "enable_format_assistance": true,
+      "enable_entity_matching": true
+     },
+     {
+      "column_name": "control_name",
+      "enable_format_assistance": true,
+      "enable_entity_matching": true
+     },
+     {
+      "column_name": "implementation_status",
+      "enable_format_assistance": true,
+      "enable_entity_matching": true
+     }
+    ]
+   },
+   {
+    "identifier": "serverless_stable_swv01_catalog.trb.documents",
+    "column_configs": [
+     {
+      "column_name": "doc_date",
+      "enable_format_assistance": true,
+      "enable_entity_matching": false
+     },
+     {
+      "column_name": "doc_id",
+      "enable_format_assistance": true,
+      "enable_entity_matching": true
+     },
+     {
+      "column_name": "doc_type",
+      "enable_format_assistance": true,
+      "enable_entity_matching": true
+     },
+     {
+      "column_name": "meeting_id",
+      "enable_format_assistance": true,
+      "enable_entity_matching": true
+     },
+     {
+      "column_name": "title",
+      "enable_format_assistance": true,
+      "enable_entity_matching": true
+     }
+    ]
+   },
+   {
+    "identifier": "serverless_stable_swv01_catalog.trb.exceptions",
+    "column_configs": [
+     {
+      "column_name": "exception_id",
+      "enable_format_assistance": true,
+      "enable_entity_matching": true
+     },
+     {
+      "column_name": "exception_status",
+      "enable_format_assistance": true,
+      "enable_entity_matching": true
+     },
+     {
+      "column_name": "exception_type",
+      "enable_format_assistance": true,
+      "enable_entity_matching": true
+     },
+     {
+      "column_name": "requested_by_role",
+      "enable_format_assistance": true,
+      "enable_entity_matching": true
+     }
+    ]
+   },
+   {
+    "identifier": "serverless_stable_swv01_catalog.trb.mv_trb_reviews",
+    "column_configs": [
+     {
+      "column_name": "approved_scope",
+      "enable_format_assistance": true,
+      "enable_entity_matching": true
+     },
+     {
+      "column_name": "business_unit",
+      "enable_format_assistance": true,
+      "enable_entity_matching": true
+     },
+     {
+      "column_name": "current_dbx_phase",
+      "enable_format_assistance": true,
+      "enable_entity_matching": true
+     },
+     {
+      "column_name": "decision_quarter",
+      "enable_format_assistance": true,
+      "enable_entity_matching": false
+     },
+     {
+      "column_name": "domain",
+      "enable_format_assistance": true,
+      "enable_entity_matching": true
+     },
+     {
+      "column_name": "is_phi_eligible",
+      "enable_format_assistance": true,
+      "enable_entity_matching": false
+     },
+     {
+      "column_name": "reviewer_role",
+      "enable_format_assistance": true,
+      "enable_entity_matching": true
+     },
+     {
+      "column_name": "trb_status",
+      "enable_format_assistance": true,
+      "enable_entity_matching": true
+     }
+    ]
+   },
+   {
+    "identifier": "serverless_stable_swv01_catalog.trb.reviews",
+    "column_configs": [
+     {
+      "column_name": "approval_meeting_id",
+      "enable_format_assistance": true,
+      "enable_entity_matching": true
+     },
+     {
+      "column_name": "approved_scope",
+      "enable_format_assistance": true,
+      "enable_entity_matching": true
+     },
+     {
+      "column_name": "current_trb_status",
+      "enable_format_assistance": true,
+      "enable_entity_matching": true
+     },
+     {
+      "column_name": "decision_date",
+      "enable_format_assistance": true,
+      "enable_entity_matching": false
+     },
+     {
+      "column_name": "domain",
+      "enable_format_assistance": true,
+      "enable_entity_matching": true
+     },
+     {
+      "column_name": "feature_name",
+      "enable_format_assistance": true,
+      "enable_entity_matching": true
+     },
+     {
+      "column_name": "primary_reviewer_role",
+      "enable_format_assistance": true,
+      "enable_entity_matching": true
+     },
+     {
+      "column_name": "requesting_business_unit",
+      "enable_format_assistance": true,
+      "enable_entity_matching": true
+     },
+     {
+      "column_name": "review_id",
+      "enable_format_assistance": true,
+      "enable_entity_matching": true
+     }
+    ]
+   },
+   {
+    "identifier": "serverless_stable_swv01_catalog.trb.v_feature_phi_eligibility",
+    "column_configs": [
+     {
+      "column_name": "blocking_reason",
+      "enable_format_assistance": true,
+      "enable_entity_matching": true
+     },
+     {
+      "column_name": "current_dbx_phase",
+      "enable_format_assistance": true,
+      "enable_entity_matching": true
+     },
+     {
+      "column_name": "current_trb_status",
+      "enable_format_assistance": true,
+      "enable_entity_matching": true
+     },
+     {
+      "column_name": "domain",
+      "enable_format_assistance": true,
+      "enable_entity_matching": true
+     },
+     {
+      "column_name": "feature_name",
+      "enable_format_assistance": true,
+      "enable_entity_matching": true
+     },
+     {
+      "column_name": "is_phi_eligible",
+      "enable_format_assistance": true,
+      "enable_entity_matching": false
+     }
+    ]
+   }
+  ]
+ },
+ "instructions": {
+  "text_instructions": [
+   {
+    "id": "78d40b65e6827d28d45d2089381cf9b0",
+    "content": [
+     "# PURPOSE\n",
+     "Answers questions about Acme Health Plan's Tech Review Board (TRB; also called the Architecture Review Board, ARB, or review board) decisions on Databricks features. Synthetic data.\n",
+     "# ROUTING\n",
+     "- PHI questions (\"can we use X with PHI\", \"approved for PHI\") -> v_feature_phi_eligibility: is_phi_eligible and blocking_reason. Never infer PHI eligibility from TRB status alone.\n",
+     "- Counts, rates, breakdowns by domain/status/business unit/quarter -> MEASURE() on mv_trb_reviews. Prefer MEASURE() over recomputing from reviews.\n",
+     "- Why a decision was made -> reviews.decision_rationale, identified_risks, mitigations, open_questions; cite documents (doc_id, summary) where array_contains(documents.review_ids, reviews.review_id).\n",
+     "- Conditions -> approval_conditions (open = verification_status <> 'Closed'; due_date NULL = ongoing).\n",
+     "- Exceptions or waivers -> exceptions joined to reviews on review_id.\n",
+     "- Meeting questions -> reviews.approval_meeting_id = 'TRBM-YYYY-MM-DD' and documents with doc_type = 'minutes'.\n",
+     "# DEFINITIONS\n",
+     "- PHI-eligible = current Databricks phase GA AND TRB status 'Approved'. 'Approved with Conditions' is NOT PHI-eligible.\n",
+     "- Pending = current_trb_status 'Under Review'. Decided = Approved, Approved with Conditions, Rejected.\n",
+     "- Match a feature with feature_name ILIKE '%term%'. Always return feature_name and review_id.\n",
+     "# CLARIFICATION RULES\n",
+     "- \"Approved\" when PHI use may be meant: ask \"Do you mean approved by the TRB for any scope, or approved for PHI use (GA and fully approved)?\"\n",
+     "- A term matching several features (e.g. \"Genie\" -> Genie One, AI/BI Genie): ask which one.\n",
+     "- If the tables cannot answer, say what is missing. Do not invent a query.\n",
+     "# SCOPE BOUNDARY\n",
+     "REFUSE questions about members, claims, providers, other PHI, Databricks pricing, or non-Databricks products. Generate no SQL and reply: \"This cannot be answered here: this agent covers TRB review decisions on Databricks features only.\"\n"
+    ]
+   }
+  ],
+  "example_question_sqls": [
+   {
+    "id": "0292da3b9b9b3e365fffd0daab7dc6eb",
+    "question": [
+     "What open conditions does a feature have?",
+     "Which conditions are still open for <feature>?"
+    ],
+    "sql": [
+     "SELECT r.review_id, r.feature_name, c.condition_id, c.condition_title, c.verification_status, c.due_date\n",
+     "FROM serverless_stable_swv01_catalog.trb.approval_conditions c\n",
+     "JOIN serverless_stable_swv01_catalog.trb.reviews r ON c.review_id = r.review_id\n",
+     "WHERE c.verification_status <> 'Closed'\n",
+     "  AND r.feature_name ILIKE concat('%', :feature_name, '%')\n",
+     "ORDER BY c.condition_id\n"
+    ],
+    "parameters": [
+     {
+      "name": "feature_name",
+      "type_hint": "STRING",
+      "description": [
+       "Feature name or part of it"
+      ],
+      "default_value": {
+       "values": [
+        "Serverless compute"
+       ]
+      }
+     }
+    ]
+   },
+   {
+    "id": "044c6275d70e0864404076b2b96bce0b",
+    "question": [
+     "What did the TRB decide at a meeting?",
+     "What was decided on <date>?"
+    ],
+    "sql": [
+     "SELECT r.review_id, r.feature_name, r.current_trb_status, r.approved_scope, d.doc_id AS minutes_doc, d.summary AS minutes_summary\n",
+     "FROM serverless_stable_swv01_catalog.trb.reviews r\n",
+     "LEFT JOIN serverless_stable_swv01_catalog.trb.documents d ON d.meeting_id = r.approval_meeting_id AND d.doc_type = 'minutes'\n",
+     "WHERE r.decision_date = :meeting_date\n",
+     "ORDER BY r.review_id\n"
+    ],
+    "parameters": [
+     {
+      "name": "meeting_date",
+      "type_hint": "DATE",
+      "description": [
+       "Meeting date, e.g. 2026-06-16"
+      ],
+      "default_value": {
+       "values": [
+        "2026-06-16"
+       ]
+      }
+     }
+    ]
+   },
+   {
+    "id": "0964545d42a7d5649013710c9f61937c",
+    "question": [
+     "Why did the TRB make its decision on a feature?",
+     "What risks did the TRB raise about <feature>?"
+    ],
+    "sql": [
+     "SELECT r.review_id, r.feature_name, r.current_trb_status, r.approval_meeting_id, r.decision_rationale,\n",
+     "       r.identified_risks, r.mitigations, r.open_questions, d.doc_id, d.summary\n",
+     "FROM serverless_stable_swv01_catalog.trb.reviews r\n",
+     "LEFT JOIN serverless_stable_swv01_catalog.trb.documents d\n",
+     "  ON array_contains(d.review_ids, r.review_id) AND d.doc_type = 'decision_record'\n",
+     "WHERE r.feature_name ILIKE concat('%', :feature_name, '%')\n"
+    ],
+    "parameters": [
+     {
+      "name": "feature_name",
+      "type_hint": "STRING",
+      "description": [
+       "Feature name or part of it"
+      ],
+      "default_value": {
+       "values": [
+        "Kafka"
+       ]
+      }
+     }
+    ]
+   },
+   {
+    "id": "2ebe898aee9c95b93b8a6c26881c618c",
+    "question": [
+     "What documents exist for a feature?",
+     "Show the TRB documents for <feature>"
+    ],
+    "sql": [
+     "SELECT d.doc_id, d.doc_type, d.doc_date, d.title, d.summary, d.volume_path\n",
+     "FROM serverless_stable_swv01_catalog.trb.documents d\n",
+     "JOIN serverless_stable_swv01_catalog.trb.reviews r ON array_contains(d.review_ids, r.review_id)\n",
+     "WHERE r.feature_name ILIKE concat('%', :feature_name, '%')\n",
+     "ORDER BY d.doc_date\n"
+    ],
+    "parameters": [
+     {
+      "name": "feature_name",
+      "type_hint": "STRING",
+      "description": [
+       "Feature name or part of it"
+      ],
+      "default_value": {
+       "values": [
+        "SQL Server"
+       ]
+      }
+     }
+    ]
+   },
+   {
+    "id": "3769cadd4ab2d04aff97a6d493b5b2d2",
+    "question": [
+     "Approval rate by domain",
+     "How many reviews per domain and how many were approved?"
+    ],
+    "sql": [
+     "SELECT domain, MEASURE(review_count) AS reviews, MEASURE(approved_count) AS approved,\n",
+     "       MEASURE(approval_rate_pct) AS approval_rate_pct\n",
+     "FROM serverless_stable_swv01_catalog.trb.mv_trb_reviews\n",
+     "GROUP BY ALL\n",
+     "ORDER BY reviews DESC\n"
+    ]
+   },
+   {
+    "id": "448193b135d21e2c1aff887c79e36ec8",
+    "question": [
+     "Exceptions by status",
+     "Which exceptions were <status>?"
+    ],
+    "sql": [
+     "SELECT e.exception_id, r.feature_name, e.exception_type, e.exception_status, e.description,\n",
+     "       e.decision_meeting_id, e.exception_end_date\n",
+     "FROM serverless_stable_swv01_catalog.trb.exceptions e\n",
+     "JOIN serverless_stable_swv01_catalog.trb.reviews r ON e.review_id = r.review_id\n",
+     "WHERE e.exception_status = :exception_status\n"
+    ],
+    "parameters": [
+     {
+      "name": "exception_status",
+      "type_hint": "STRING",
+      "description": [
+       "One of: Requested, Approved, Denied, Expired, Withdrawn"
+      ],
+      "default_value": {
+       "values": [
+        "Denied"
+       ]
+      }
+     }
+    ]
+   },
+   {
+    "id": "6be4b0e578b73ffb49737b570fa79a5c",
+    "question": [
+     "Which reviews are pending for a business unit?",
+     "What is <business unit> waiting on from the TRB?"
+    ],
+    "sql": [
+     "SELECT review_id, feature_name, initial_submission_date, next_review_date, open_questions\n",
+     "FROM serverless_stable_swv01_catalog.trb.reviews\n",
+     "WHERE current_trb_status = 'Under Review' AND requesting_business_unit = :business_unit\n",
+     "ORDER BY initial_submission_date\n"
+    ],
+    "parameters": [
+     {
+      "name": "business_unit",
+      "type_hint": "STRING",
+      "description": [
+       "Requesting business unit, e.g. 'Clinical Analytics', 'Data Governance', 'Enterprise Data Platform'"
+      ],
+      "default_value": {
+       "values": [
+        "Clinical Analytics"
+       ]
+      }
+     }
+    ]
+   },
+   {
+    "id": "a291760a672b1693b9f45b52474f28e7",
+    "question": [
+     "Which features are approved for PHI?",
+     "List PHI-eligible features"
+    ],
+    "sql": [
+     "SELECT review_id, feature_name, domain, approved_scope\n",
+     "FROM serverless_stable_swv01_catalog.trb.v_feature_phi_eligibility\n",
+     "WHERE is_phi_eligible\n",
+     "ORDER BY domain, feature_name\n"
+    ]
+   },
+   {
+    "id": "a8080bf97c0ace701de2064d1bfbb1ec",
+    "question": [
+     "Which controls are mapped to a feature?",
+     "What HIPAA or NIST controls does <feature> satisfy?"
+    ],
+    "sql": [
+     "SELECT r.feature_name, m.control_framework, m.control_id, m.control_name, m.implementation_status\n",
+     "FROM serverless_stable_swv01_catalog.trb.control_mappings m\n",
+     "JOIN serverless_stable_swv01_catalog.trb.reviews r ON m.review_id = r.review_id\n",
+     "WHERE r.feature_name ILIKE concat('%', :feature_name, '%')\n",
+     "ORDER BY m.control_framework, m.control_id\n"
+    ],
+    "parameters": [
+     {
+      "name": "feature_name",
+      "type_hint": "STRING",
+      "description": [
+       "Feature name or part of it"
+      ],
+      "default_value": {
+       "values": [
+        "Customer-managed keys"
+       ]
+      }
+     }
+    ]
+   },
+   {
+    "id": "f6e11dccb3340f1f77c4845d95b119e1",
+    "question": [
+     "What is the TRB status and PHI eligibility of a feature?",
+     "Can we use <feature> with PHI?"
+    ],
+    "sql": [
+     "SELECT review_id, feature_name, current_trb_status, current_dbx_phase, approved_scope, is_phi_eligible, blocking_reason\n",
+     "FROM serverless_stable_swv01_catalog.trb.v_feature_phi_eligibility\n",
+     "WHERE feature_name ILIKE concat('%', :feature_name, '%')\n"
+    ],
+    "parameters": [
+     {
+      "name": "feature_name",
+      "type_hint": "STRING",
+      "description": [
+       "Feature name or part of it, e.g. 'Genie One', 'Unity Catalog'"
+      ],
+      "default_value": {
+       "values": [
+        "Genie One"
+       ]
+      }
+     }
+    ]
+   }
+  ],
+  "sql_snippets": {
+   "measures": [
+    {
+     "id": "01584e7f54cd288dc201abdfdc3a6e80",
+     "alias": "pending_reviews",
+     "display_name": "Pending reviews",
+     "sql": [
+      "COUNT_IF(reviews.current_trb_status = 'Under Review')"
+     ],
+     "comment": [
+      "Reviews awaiting a TRB decision."
+     ],
+     "instruction": [
+      "Use for 'how many reviews are pending / in review / waiting on the board'."
+     ],
+     "synonyms": [
+      "number of pending reviews",
+      "how many reviews are pending",
+      "pending review count"
+     ]
+    },
+    {
+     "id": "6e8ecb62dda23ede55288cbf453a7816",
+     "alias": "open_condition_total",
+     "display_name": "Open conditions",
+     "sql": [
+      "COUNT_IF(approval_conditions.verification_status <> 'Closed')"
+     ],
+     "comment": [
+      "Approval conditions not yet verified closed (Open or In Progress)."
+     ],
+     "instruction": [
+      "Use for 'how many conditions are open/outstanding'. Grain: one row per condition."
+     ],
+     "synonyms": [
+      "number of open conditions",
+      "how many conditions are open",
+      "open condition count"
+     ]
+    },
+    {
+     "id": "faca7ecf8e3ecc1ba2b132446c14e5df",
+     "alias": "phi_eligible_features",
+     "display_name": "PHI-eligible features",
+     "sql": [
+      "COUNT_IF(v_feature_phi_eligibility.is_phi_eligible)"
+     ],
+     "comment": [
+      "Features that are GA and fully TRB-approved."
+     ],
+     "instruction": [
+      "Use for 'how many features can be used with PHI'. Never count Approved with Conditions."
+     ],
+     "synonyms": [
+      "number of PHI-eligible features",
+      "how many features can use PHI",
+      "PHI-eligible count"
+     ]
+    }
+   ],
+   "filters": [
+    {
+     "id": "093e0a1c00426edc1dff7ae46b0390b0",
+     "display_name": "PHI-eligible",
+     "sql": [
+      "v_feature_phi_eligibility.is_phi_eligible = TRUE"
+     ],
+     "comment": [
+      "GA and fully TRB-approved features."
+     ],
+     "instruction": [
+      "Apply for 'approved for PHI', 'PHI-eligible', 'cleared for PHI'."
+     ],
+     "synonyms": [
+      "approved for PHI",
+      "PHI eligible",
+      "cleared for PHI"
+     ]
+    },
+    {
+     "id": "73f241c265091804a71a9fc26a5261dc",
+     "display_name": "Denied exceptions",
+     "sql": [
+      "exceptions.exception_status = 'Denied'"
+     ],
+     "comment": [
+      "Exception requests the TRB denied."
+     ],
+     "instruction": [
+      "Apply for denied, rejected, or refused exception or waiver questions."
+     ],
+     "synonyms": [
+      "denied waivers",
+      "rejected exceptions",
+      "refused exceptions"
+     ]
+    },
+    {
+     "id": "d0da516f80189516f3ce2074225606cf",
+     "display_name": "Open conditions only",
+     "sql": [
+      "approval_conditions.verification_status <> 'Closed'"
+     ],
+     "comment": [
+      "Conditions not yet verified closed."
+     ],
+     "instruction": [
+      "Apply when the user asks about open, outstanding, or unresolved conditions."
+     ],
+     "synonyms": [
+      "open conditions",
+      "outstanding",
+      "not closed"
+     ]
+    },
+    {
+     "id": "fda965932b7bddf178f83f7fb38a5481",
+     "display_name": "Pending TRB decision",
+     "sql": [
+      "reviews.current_trb_status = 'Under Review'"
+     ],
+     "comment": [
+      "Reviews awaiting a decision."
+     ],
+     "instruction": [
+      "Apply for pending, in review, or awaiting-decision questions."
+     ],
+     "synonyms": [
+      "pending",
+      "under review",
+      "awaiting decision"
+     ]
+    }
+   ],
+   "expressions": [
+    {
+     "id": "6201de443cf94a952214d8c68b510d2a",
+     "alias": "decision_quarter",
+     "display_name": "Decision quarter",
+     "sql": [
+      "DATE_TRUNC('QUARTER', reviews.decision_date)"
+     ],
+     "comment": [
+      "Quarter of the TRB decision."
+     ],
+     "instruction": [
+      "Use to group decisions by quarter."
+     ],
+     "synonyms": [
+      "quarter decided",
+      "decision period"
+     ]
+    },
+    {
+     "id": "6598c1101cf87594c0fd715669ed4902",
+     "alias": "days_to_decision",
+     "display_name": "Days to decision",
+     "sql": [
+      "DATEDIFF(reviews.decision_date, reviews.initial_submission_date)"
+     ],
+     "comment": [
+      "Days from intake submission to TRB decision; NULL while undecided."
+     ],
+     "instruction": [
+      "Use for turnaround or cycle-time questions about a single review."
+     ],
+     "synonyms": [
+      "turnaround",
+      "cycle time",
+      "time to decision"
+     ]
+    }
+   ]
+  }
+ }
+}

@@ -1,0 +1,22 @@
+# Re-post the Review Board agent benchmarks after every deploy (deploys wipe them).
+resources:
+  jobs:
+    review_board_genie_maintenance:
+      name: "Review Board: sync Genie benchmarks"
+      max_concurrent_runs: 1
+      environments:
+        - environment_key: default
+          spec:
+            client: "4"
+            dependencies:
+              - databricks-sdk>=0.40
+      tasks:
+        - task_key: sync_benchmarks
+          environment_key: default
+          spark_python_task:
+            python_file: ../genie/tasks/sync_benchmarks.py
+            parameters:
+              - --bundle-root
+              - ${workspace.file_path}
+              - --space-id
+              - ${resources.genie_spaces.review_board_agent.id}

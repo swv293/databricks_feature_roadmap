@@ -1,0 +1,157 @@
+[
+ {
+  "question_text": "Can we use Genie One with PHI data?",
+  "answer_text": "SELECT review_id, feature_name, is_phi_eligible, blocking_reason FROM serverless_stable_swv01_catalog.trb.v_feature_phi_eligibility WHERE feature_name ILIKE '%Genie One%'",
+  "negative": false,
+  "must_reference": [
+   "v_feature_phi_eligibility"
+  ]
+ },
+ {
+  "question_text": "Is Unity Catalog approved for PHI?",
+  "answer_text": "SELECT review_id, feature_name, is_phi_eligible, blocking_reason FROM serverless_stable_swv01_catalog.trb.v_feature_phi_eligibility WHERE feature_name ILIKE '%Unity Catalog%'",
+  "negative": false,
+  "must_reference": [
+   "v_feature_phi_eligibility"
+  ]
+ },
+ {
+  "question_text": "Is the SQL Server connector PHI-eligible?",
+  "answer_text": "SELECT review_id, feature_name, is_phi_eligible, blocking_reason FROM serverless_stable_swv01_catalog.trb.v_feature_phi_eligibility WHERE feature_name ILIKE '%SQL Server%'",
+  "negative": false,
+  "must_reference": [
+   "v_feature_phi_eligibility"
+  ]
+ },
+ {
+  "question_text": "Which features are approved for PHI?",
+  "answer_text": "SELECT review_id, feature_name FROM serverless_stable_swv01_catalog.trb.v_feature_phi_eligibility WHERE is_phi_eligible",
+  "negative": false,
+  "must_reference": [
+   "v_feature_phi_eligibility"
+  ]
+ },
+ {
+  "question_text": "How many features are PHI-eligible?",
+  "answer_text": "SELECT MEASURE(phi_eligible_count) AS phi_eligible FROM serverless_stable_swv01_catalog.trb.mv_trb_reviews",
+  "negative": false,
+  "must_reference": [
+   "mv_trb_reviews",
+   "v_feature_phi_eligibility"
+  ]
+ },
+ {
+  "question_text": "Which reviews are pending a TRB decision?",
+  "answer_text": "SELECT review_id, feature_name FROM serverless_stable_swv01_catalog.trb.reviews WHERE current_trb_status = 'Under Review'",
+  "negative": false,
+  "must_reference": [
+   "reviews",
+   "mv_trb_reviews"
+  ]
+ },
+ {
+  "question_text": "What open conditions does Serverless compute have?",
+  "answer_text": "SELECT c.condition_id, c.condition_title, c.verification_status FROM serverless_stable_swv01_catalog.trb.approval_conditions c JOIN serverless_stable_swv01_catalog.trb.reviews r ON c.review_id = r.review_id WHERE c.verification_status <> 'Closed' AND r.feature_name ILIKE '%Serverless compute%'",
+  "negative": false,
+  "must_reference": [
+   "approval_conditions"
+  ]
+ },
+ {
+  "question_text": "What open conditions does Genie One have?",
+  "answer_text": "SELECT c.condition_id, c.condition_title, c.verification_status FROM serverless_stable_swv01_catalog.trb.approval_conditions c JOIN serverless_stable_swv01_catalog.trb.reviews r ON c.review_id = r.review_id WHERE c.verification_status <> 'Closed' AND r.feature_name ILIKE '%Genie One%'",
+  "negative": false,
+  "must_reference": [
+   "approval_conditions"
+  ]
+ },
+ {
+  "question_text": "How many approval conditions are still open?",
+  "answer_text": "SELECT COUNT(*) AS open_conditions FROM serverless_stable_swv01_catalog.trb.approval_conditions WHERE verification_status <> 'Closed'",
+  "negative": false,
+  "must_reference": [
+   "approval_conditions",
+   "mv_trb_reviews"
+  ]
+ },
+ {
+  "question_text": "Why was Kafka-compatible APIs rejected?",
+  "answer_text": "SELECT review_id, feature_name, current_trb_status, decision_rationale FROM serverless_stable_swv01_catalog.trb.reviews WHERE feature_name ILIKE '%Kafka%'",
+  "negative": false,
+  "must_reference": [
+   "reviews"
+  ]
+ },
+ {
+  "question_text": "What did the TRB decide at the 2026-06-16 meeting?",
+  "answer_text": "SELECT review_id, feature_name, current_trb_status FROM serverless_stable_swv01_catalog.trb.reviews WHERE decision_date = DATE '2026-06-16'",
+  "negative": false,
+  "must_reference": [
+   "reviews"
+  ]
+ },
+ {
+  "question_text": "What is the TRB approval rate by domain?",
+  "answer_text": "SELECT domain, MEASURE(approval_rate_pct) AS approval_rate_pct FROM serverless_stable_swv01_catalog.trb.mv_trb_reviews GROUP BY ALL",
+  "negative": false,
+  "must_reference": [
+   "mv_trb_reviews"
+  ]
+ },
+ {
+  "question_text": "How many reviews does each domain have?",
+  "answer_text": "SELECT domain, MEASURE(review_count) AS reviews FROM serverless_stable_swv01_catalog.trb.mv_trb_reviews GROUP BY ALL",
+  "negative": false,
+  "must_reference": [
+   "mv_trb_reviews"
+  ]
+ },
+ {
+  "question_text": "What is the average number of days from submission to TRB decision?",
+  "answer_text": "SELECT MEASURE(avg_days_to_decision) AS avg_days FROM serverless_stable_swv01_catalog.trb.mv_trb_reviews",
+  "negative": false,
+  "must_reference": [
+   "mv_trb_reviews",
+   "reviews"
+  ]
+ },
+ {
+  "question_text": "Which exceptions were denied?",
+  "answer_text": "SELECT exception_id, review_id, exception_status FROM serverless_stable_swv01_catalog.trb.exceptions WHERE exception_status = 'Denied'",
+  "negative": false,
+  "must_reference": [
+   "exceptions"
+  ]
+ },
+ {
+  "question_text": "Which pending reviews came from Clinical Analytics?",
+  "answer_text": "SELECT review_id, feature_name FROM serverless_stable_swv01_catalog.trb.reviews WHERE current_trb_status = 'Under Review' AND requesting_business_unit = 'Clinical Analytics'",
+  "negative": false,
+  "must_reference": [
+   "reviews"
+  ]
+ },
+ {
+  "question_text": "Which HIPAA controls are mapped to Customer-managed keys?",
+  "answer_text": "SELECT m.control_id, m.control_name FROM serverless_stable_swv01_catalog.trb.control_mappings m JOIN serverless_stable_swv01_catalog.trb.reviews r ON m.review_id = r.review_id WHERE r.feature_name ILIKE '%Customer-managed keys%' AND m.control_framework = 'HIPAA-Security-Rule'",
+  "negative": false,
+  "must_reference": [
+   "control_mappings"
+  ]
+ },
+ {
+  "question_text": "Is Genie approved?",
+  "answer_text": "-- expect clarification: Genie One vs AI/BI Genie, and TRB approval vs PHI approval",
+  "negative": true
+ },
+ {
+  "question_text": "What is the claims denial rate for Medicare Advantage members?",
+  "answer_text": "-- expect refusal: out of scope (claims/PHI)",
+  "negative": true
+ },
+ {
+  "question_text": "How much does Databricks serverless compute cost per DBU?",
+  "answer_text": "-- expect refusal: out of scope (pricing)",
+  "negative": true
+ }
+]

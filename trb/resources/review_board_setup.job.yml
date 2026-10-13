@@ -1,0 +1,23 @@
+# Create the TRB register in an empty catalog: tables, data, views, documents.
+# Refuses to run if <catalog>.trb.reviews already has rows.
+resources:
+  jobs:
+    review_board_setup:
+      name: "Review Board: create TRB register (tables, data, views, documents)"
+      max_concurrent_runs: 1
+      environments:
+        - environment_key: default
+          spec:
+            client: "4"
+      tasks:
+        - task_key: setup_trb
+          environment_key: default
+          spark_python_task:
+            python_file: ../genie/tasks/setup_trb.py
+            parameters:
+              - --bundle-root
+              - ${workspace.file_path}
+              - --catalog
+              - ${var.catalog}
+              - --allow-existing
+              - "false"

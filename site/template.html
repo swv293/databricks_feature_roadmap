@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Databricks Feature Tracker</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTA0IiBoZWlnaHQ9IjExMyIgdmlld0JveD0iMCAwIDEwNCAxMTMiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxwYXRoIGQ9Ik05OC45IDQ2LjU5OTZMNTIuMyA3Mi44OTk2TDIuNCA0NC43OTk2TDAgNDYuMDk5NlY2Ni40OTk2TDUyLjMgOTUuODk5Nkw5OC45IDY5LjY5OTZWODAuNDk5Nkw1Mi4zIDEwNi44TDIuNCA3OC42OTk2TDAgNzkuOTk5NlY4My40OTk2TDUyLjMgMTEyLjlMMTA0LjUgODMuNDk5NlY2My4wOTk2TDEwMi4xIDYxLjc5OTZMNTIuMyA4OS43OTk2TDUuNiA2My41OTk2VjUyLjc5OTZMNTIuMyA3OC45OTk2TDEwNC41IDQ5LjU5OTZWMjkuNDk5NkwxMDEuOSAyNy45OTk2TDUyLjMgNTUuODk5Nkw4IDMxLjA5OTZMNTIuMyA2LjE5OTYxTDg4LjcgMjYuNjk5Nkw5MS45IDI0Ljg5OTZWMjIuMzk5Nkw1Mi4zIDAuMDk5NjA5NEwwIDI5LjQ5OTZWMzIuNjk5Nkw1Mi4zIDYyLjA5OTZMOTguOSAzNS43OTk2VjQ2LjU5OTZaIiBmaWxsPSIjRkYzNjIxIi8+Cjwvc3ZnPgo=">
+<style>
+  :root{
+    --red:#FF3621; --red-dk:#D42912; --black:#1B1B1B; --gray-bg:#F7F7F7;
+    --border:#E5E5E5; --muted:#6B6B6B; --green:#00A972; --blue:#1D6FAB; --amber:#B4690E; --gray:#9a9a9a;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    color:var(--black);background:#fff;line-height:1.5;-webkit-font-smoothing:antialiased}
+  a{color:var(--blue);text-decoration:none} a:hover{text-decoration:underline}
+  .wrap{max-width:1240px;margin:0 auto;padding:0 24px}
+
+  nav{position:sticky;top:0;z-index:50;background:rgba(27,27,27,.97);backdrop-filter:blur(6px);color:#fff;border-bottom:1px solid #333}
+  nav .wrap{display:flex;align-items:center;justify-content:space-between;height:60px}
+  nav .brand{display:flex;align-items:center;gap:12px;font-weight:700;font-size:16px} nav .brand span{color:#fff}
+  nav .brand .dbx-logo{height:22px;width:auto;display:block} nav .brand .divider{width:1px;height:20px;background:#555}
+  nav .links{display:flex;gap:20px;font-size:14px} nav .links a{color:#cfcfcf} nav .links a:hover{color:#fff;text-decoration:none}
+  @media(max-width:900px){nav .links{display:none}}
+
+  header.hero{background:var(--black);color:#fff;padding:50px 0 36px}
+  header.hero h1{font-size:34px;line-height:1.15;font-weight:800;max-width:900px}
+  header.hero h1 .accent{color:var(--red)}
+  header.hero p.sub{margin-top:14px;font-size:17px;color:#c9c9c9;max-width:860px}
+  .cloud-tag{display:inline-block;margin-top:14px;font-size:12px;font-weight:600;background:#262626;border:1px solid #3a3a3a;color:#9fbfd6;border-radius:999px;padding:5px 12px}
+  .tiles{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-top:28px}
+  .tile{background:#262626;border:1px solid #383838;border-radius:12px;padding:16px 18px}
+  .tile .n{font-size:30px;font-weight:800;line-height:1} .tile .l{margin-top:7px;font-size:12px;color:#bdbdbd}
+  .tile.ok .n{color:var(--green)} .tile.pend .n{color:#e9a23b} .tile.prev .n{color:#5aa9de}
+  .tile.up .n{color:#b9a7e0} .tile.block .n{color:#ff7b6e}
+  @media(max-width:900px){.tiles{grid-template-columns:repeat(2,1fr)}header.hero h1{font-size:26px}}
+
+  section.policy{background:var(--gray-bg);border-bottom:1px solid var(--border);padding:24px 0}
+  .policy-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+  @media(max-width:900px){.policy-grid{grid-template-columns:1fr}}
+  .policy h3{font-size:12px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);margin-bottom:10px}
+  .rule{margin-top:14px;background:#fff;border:1px solid var(--border);border-left:4px solid var(--red);border-radius:8px;padding:13px 15px;font-size:13.5px}
+  .rule b{color:var(--red-dk)}
+  .disclaimer{background:rgba(255,54,33,.08);border:1px solid rgba(255,54,33,.25);color:#7a2417;border-radius:8px;padding:11px 14px;font-size:13px;margin-top:14px}
+
+  /* legend tubes */
+  .legend-tube{margin:4px 0 2px} .legend-tube .lab{font-size:11px;color:var(--muted);margin-bottom:4px}
+
+  section.controls{position:sticky;top:60px;z-index:40;background:#fff;border-bottom:1px solid var(--border);padding:14px 0}
+  /* prominent search */
+  .searchbar{display:flex;align-items:center;gap:12px;background:#fff;border:2px solid var(--red);border-radius:12px;padding:3px 16px;box-shadow:0 3px 14px rgba(255,54,33,.10)}
+  .searchbar:focus-within{box-shadow:0 3px 18px rgba(255,54,33,.22)}
+  .searchbar svg{flex:none;color:var(--red)}
+  .searchbar input[type=search]{flex:1;border:none;outline:none;padding:13px 0;font-size:16px;background:transparent;color:var(--black)}
+  .searchbar input[type=search]::placeholder{color:#9a9a9a}
+  .searchbar .count{font-size:12.5px;color:var(--muted);white-space:nowrap;font-weight:600}
+  .ctl-row{display:flex;flex-wrap:wrap;gap:9px;align-items:center;margin-top:11px}
+  .ctl-row .lbl{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-right:2px}
+  .ctl-row select{padding:8px 9px;border:1px solid var(--border);border-radius:8px;font-size:12.5px;background:#fff;cursor:pointer}
+  .ctl-row label.chk{font-size:12.5px;color:#444;display:flex;gap:5px;align-items:center;cursor:pointer}
+  .btn-reset{padding:8px 11px;border:1px solid var(--border);background:#fff;border-radius:8px;font-size:12.5px;cursor:pointer;margin-left:auto}
+  .btn-reset:hover{background:var(--gray-bg)}
+
+  .pill{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:600;padding:2px 9px;border-radius:999px;white-space:nowrap}
+  .pill .dot{width:7px;height:7px;border-radius:50%;background:currentColor}
+  .phi-ok{background:rgba(0,169,114,.12);color:var(--green)} .phi-no{background:#f0f0f0;color:#8a8a8a}
+  .prio-High{color:var(--red-dk);font-weight:700} .prio-Medium{color:var(--amber);font-weight:600} .prio-Low{color:var(--muted)}
+
+  /* progress tube (compact, in rows) */
+  .tube{display:flex;flex-direction:column;gap:5px;min-width:160px}
+  .tube .seg{display:flex;gap:3px;height:9px}
+  .tube .seg .s{flex:1;border-radius:3px;background:#e8e8e8;transition:background .2s}
+  .tube .cap{font-size:11px;color:var(--muted);display:flex;align-items:center;gap:6px}
+  .tube .cap .dot2{width:9px;height:9px;border-radius:50%;flex:none}
+  .tube .cap b{font-weight:700}
+
+  section.recent{padding:30px 0 6px}
+  section.recent h2{font-size:21px;font-weight:800;margin-bottom:4px}
+  .recent-sub{color:var(--muted);font-size:13.5px;margin-bottom:14px}
+  .feed-row{display:flex;gap:12px;align-items:flex-start;padding:11px 13px;border:1px solid var(--border);border-radius:10px;margin-bottom:7px;background:#fff}
+  .feed-row .date{font-size:11.5px;color:var(--muted);min-width:84px;padding-top:2px}
+  .feed-row .txt{flex:1;font-size:13.5px} .feed-row .txt b{font-weight:700}
+  .feed-row .fp{font-size:10.5px;font-weight:700;padding:2px 7px;border-radius:999px;white-space:nowrap}
+  .recent-head{display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .btn-hist{font:inherit;font-size:13px;font-weight:600;background:#fff;border:1px solid var(--border);border-radius:8px;padding:6px 13px;cursor:pointer}
+  .btn-hist:hover{border-color:#cfcfcf} .btn-hist[aria-expanded="true"]{border-color:var(--red);color:var(--red)}
+  .hist{border:1px solid var(--border);border-radius:12px;background:var(--gray-bg);padding:12px;margin-bottom:14px}
+  .hist-head{font-size:13px;color:var(--muted);margin-bottom:10px} .hist-head b{color:var(--black)}
+  .hist-grid{display:grid;grid-template-columns:190px 1fr;gap:12px;align-items:start}
+  .hist-dates{display:flex;flex-direction:column;gap:6px;max-height:420px;overflow:auto}
+  .hist-dates button{font:inherit;font-size:13px;text-align:left;background:#fff;border:1px solid var(--border);border-radius:8px;padding:7px 10px;cursor:pointer;display:flex;justify-content:space-between;gap:8px}
+  .hist-dates button .n{color:var(--muted);font-size:11.5px}
+  .hist-dates button.on{border-color:var(--red);box-shadow:0 2px 8px rgba(255,54,33,.12)}
+  .hist-body .feed-row .hdec{font-size:11px;color:var(--muted);margin-left:4px}
+  .hist-body .empty{font-size:13px;color:var(--muted);background:#fff;border:1px dashed var(--border);border-radius:10px;padding:12px}
+  @media(max-width:700px){.hist-grid{grid-template-columns:1fr}.hist-dates{flex-direction:row;flex-wrap:wrap;max-height:none}}
+
+  section.catalog{padding:20px 0 10px}
+  .domain{margin-bottom:12px;border:1px solid var(--border);border-radius:12px;overflow:hidden;background:#fff}
+  .domain>.dhead{display:flex;align-items:center;gap:11px;padding:15px 17px;cursor:pointer;background:var(--gray-bg);user-select:none}
+  .domain>.dhead:hover{background:#efefef}
+  .domain>.dhead .dname{font-size:16px;font-weight:800}
+  .domain>.dhead .dcount{font-size:11.5px;color:var(--muted);background:#fff;border:1px solid var(--border);border-radius:999px;padding:2px 9px}
+  .domain>.dhead .chev{margin-left:auto;color:var(--muted);transition:transform .18s}
+  .domain.collapsed .chev{transform:rotate(-90deg)} .domain.collapsed .dbody{display:none}
+  .domain>.dbody{display:flex;flex-direction:column;gap:10px;padding:12px;border-top:1px solid var(--border)}
+  .feat{border:1px solid var(--border);border-radius:10px;overflow:hidden;background:#fff;transition:border-color .18s,box-shadow .18s}
+  .feat:hover{border-color:#cfcfcf}
+  .feat.open{border-color:var(--red);box-shadow:0 2px 10px rgba(255,54,33,.12)}
+  .feat.child{margin-left:24px}
+  .feat .frow{display:grid;grid-template-columns:1.5fr 160px 160px auto auto 22px;gap:12px;align-items:center;padding:11px 17px;cursor:pointer}
+  .feat.child .frow{background:#fcfcfc}
+  .feat .frow:hover{background:#fafafa}
+  .feat .fname{font-weight:600;font-size:14.5px} .feat.child .fname{font-weight:500;font-size:13.5px}
+  .feat .fname small{display:block;font-weight:400;color:var(--muted);font-size:11.5px;margin-top:2px}
+  .feat .chev2{color:var(--muted);transition:transform .18s;text-align:center} .feat.open .chev2{transform:rotate(90deg)}
+  .feat .drawer{display:none;padding:4px 17px 18px 40px;background:#fbfbfb;border-top:1px dashed var(--border)}
+  .feat.open .drawer{display:block}
+  .drawer .dgrid{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-top:12px}
+  @media(max-width:900px){.drawer .dgrid{grid-template-columns:1fr}
+    .feat .frow{grid-template-columns:1fr 110px 22px} .feat .frow .hide-sm{display:none}}
+  .drawer h4{font-size:11.5px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin:0 0 6px}
+  .drawer .block{margin-bottom:15px} .drawer .meta-line{font-size:13px;margin-bottom:5px} .drawer .meta-line span{color:var(--muted)}
+  .chips{display:flex;flex-wrap:wrap;gap:6px} .chip{font-size:11.5px;background:#eef2f5;color:#33607f;border-radius:6px;padding:3px 9px}
+  .doclinks a{display:inline-block;margin:0 12px 6px 0;font-size:13px}
+  .limit{font-size:13px;background:#fff;border:1px solid var(--border);border-radius:8px;padding:9px 11px;color:#444}
+  .limlink{display:inline-block;margin-top:7px;font-size:12.5px;font-weight:600}
+  .obj{font-size:13px;background:#fff;border:1px solid var(--border);border-left:3px solid var(--amber);border-radius:8px;padding:9px 11px;color:#444}
+  .obj .trbq{margin-top:9px;padding-top:9px;border-top:1px dashed var(--border)} .obj .trbq b{color:var(--black)}
+  .obj .trbq ol{margin:6px 0 0;padding-left:20px} .obj .trbq li{margin:3px 0}
+  .mockup{background:#FFF4D6;border-bottom:2px solid var(--amber);color:#5a3a00}
+  .mockup .wrap{padding:12px 0;font-size:14.5px;line-height:1.5;text-align:center}
+  /* per-feature blurb (what it is + payer use case) */
+  .blurb{font-size:14px;line-height:1.5;color:#2a2a2a;background:rgba(0,169,114,.06);border:1px solid rgba(0,169,114,.22);border-left:3px solid var(--green);border-radius:9px;padding:11px 14px;margin-top:12px}
+  .blurb .uc-tag{display:block;font-size:10.5px;text-transform:uppercase;letter-spacing:.5px;color:var(--green);font-weight:700;margin-bottom:4px}
+  /* compact facts strip (replaces status that just echoed the bars) */
+  .facts{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin:14px 0 2px}
+  .facts .fact{font-size:12px;color:var(--muted)} .facts .fact b{color:var(--black);font-weight:700}
+  /* full labeled stepper — highlighted */
+  .stepper{margin-top:12px;background:#fff;border:1px solid var(--border);border-radius:10px;padding:12px 14px}
+  .stepper .lab{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-bottom:9px;display:flex;justify-content:space-between;align-items:center}
+  .stepper .lab b{font-size:12.5px;letter-spacing:0;text-transform:none;padding:3px 11px;border-radius:999px;background:#fff;font-weight:700}
+  .stepper .track{display:flex;gap:4px} .stepper .node{flex:1;text-align:center}
+  .stepper .node .bar{height:11px;border-radius:4px;background:#e8e8e8;transition:all .2s}
+  .stepper .node .t{font-size:9.5px;color:#aaa;margin-top:6px;line-height:1.2}
+  .stepper .node.done .t{color:#777} .stepper .node.on .t{color:var(--black);font-weight:700}
+
+  section.assistant{background:var(--black);color:#fff;padding:42px 0;margin-top:28px}
+  section.assistant h2{font-size:25px;font-weight:800}
+  section.assistant p.lead{color:#c9c9c9;margin-top:9px;max-width:760px;font-size:15px}
+  .asst-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:24px}
+  @media(max-width:900px){.asst-grid{grid-template-columns:1fr}}
+  .asst-card{background:#262626;border:1px solid #383838;border-radius:12px;padding:21px}
+  .asst-card h3{font-size:17px;margin-bottom:6px} .asst-card .tag{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:#8fd0b6}
+  .asst-card p{color:#bdbdbd;font-size:13.5px;margin-top:8px} .asst-card .ex{margin-top:11px;font-size:13px;color:#e0e0e0}
+  .asst-card .ex li{margin:4px 0 4px 18px}
+  .asst-card .cta{display:inline-block;margin-top:14px;background:var(--red);color:#fff;font-weight:600;font-size:13px;padding:8px 15px;border-radius:8px}
+  .asst-card .cta:hover{background:var(--red-dk);text-decoration:none}
+  .asst-card .unplugged{margin-top:10px;font-size:13px;color:#FFD27A;background:#2b2412;border:1px solid #5a4510;border-radius:8px;padding:8px 11px}
+  .asst-card .stub{margin-top:12px;font-size:11.5px;color:#888;border-top:1px solid #383838;padding-top:11px}
+
+  section.runbook{padding:42px 0}
+  section.runbook h2{font-size:23px;font-weight:800;margin-bottom:6px} .rb-sub{color:var(--muted);margin-bottom:18px}
+  .steps{counter-reset:step}
+  .step{position:relative;padding:0 0 20px 42px;border-left:2px solid var(--border);margin-left:12px}
+  .step:last-child{border-left:2px solid transparent}
+  .step::before{counter-increment:step;content:counter(step);position:absolute;left:-15px;top:-2px;width:28px;height:28px;background:var(--red);color:#fff;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:13px}
+  .step h4{font-size:15px;margin-bottom:4px} .step p{font-size:13.5px;color:#444}
+  pre{background:#1B1B1B;color:#e6e6e6;border-radius:10px;padding:13px 15px;overflow-x:auto;font-size:12.5px;margin-top:8px;line-height:1.55}
+  pre .c{color:#8fd0b6} pre .k{color:#ff7b6e}
+  .pausebadge{display:inline-block;background:rgba(180,105,14,.14);color:var(--amber);font-size:11.5px;font-weight:700;padding:3px 10px;border-radius:999px;margin-left:8px}
+  footer{background:var(--black);color:#bdbdbd;padding:38px 0;font-size:13px}
+  footer .fgrid{display:grid;grid-template-columns:2fr 1fr 1fr;gap:30px}
+  @media(max-width:900px){footer .fgrid{grid-template-columns:1fr}}
+  footer h5{color:#fff;font-size:13px;text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px}
+  footer a{color:#9fbfd6;display:block;margin-bottom:6px}
+</style>
+</head>
+<body>
+
+<nav><div class="wrap">
+  <div class="brand"><svg class="dbx-logo" role="img" aria-label="Databricks" height="22" viewBox="0 0 713 113" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g clip-path="url(#clip0_1984_731)">
+<path d="M98.9 46.5996L52.3 72.8996L2.4 44.7996L0 46.0996V66.4996L52.3 95.8996L98.9 69.6996V80.4996L52.3 106.8L2.4 78.6996L0 79.9996V83.4996L52.3 112.9L104.5 83.4996V63.0996L102.1 61.7996L52.3 89.7996L5.6 63.5996V52.7996L52.3 78.9996L104.5 49.5996V29.4996L101.9 27.9996L52.3 55.8996L8 31.0996L52.3 6.19961L88.7 26.6996L91.9 24.8996V22.3996L52.3 0.0996094L0 29.4996V32.6996L52.3 62.0996L98.9 35.7996V46.5996Z" fill="#FF3621"/>
+<path d="M202.2 96.1994V6.39941H188.4V39.9994C188.4 40.4994 188.1 40.8994 187.6 41.0994C187.1 41.2994 186.6 41.0994 186.3 40.7994C181.6 35.2994 174.3 32.1994 166.3 32.1994C149.2 32.1994 135.8 46.5994 135.8 64.9994C135.8 73.9994 138.9 82.2994 144.6 88.3994C150.3 94.4994 158 97.7994 166.3 97.7994C174.2 97.7994 181.5 94.4994 186.3 88.7994C186.6 88.3994 187.2 88.2994 187.6 88.3994C188.1 88.5994 188.4 88.9994 188.4 89.4994V96.1994H202.2ZM169.3 85.2994C158.3 85.2994 149.7 76.3994 149.7 64.9994C149.7 53.5994 158.3 44.6994 169.3 44.6994C180.3 44.6994 188.9 53.5994 188.9 64.9994C188.9 76.3994 180.3 85.2994 169.3 85.2994Z" fill="white"/>
+<path d="M276 96.0996V33.6996H262.3V39.9996C262.3 40.4996 262 40.8996 261.5 41.0996C261 41.2996 260.5 41.0996 260.2 40.6996C255.6 35.1996 248.4 32.0996 240.2 32.0996C223.1 32.0996 209.7 46.4996 209.7 64.8996C209.7 83.2996 223.1 97.6996 240.2 97.6996C248.1 97.6996 255.4 94.3996 260.2 88.5996C260.5 88.1996 261.1 88.0996 261.5 88.1996C262 88.3996 262.3 88.7996 262.3 89.2996V96.0996H276ZM243.3 85.2996C232.3 85.2996 223.7 76.3996 223.7 64.9996C223.7 53.5996 232.3 44.6996 243.3 44.6996C254.3 44.6996 262.9 53.5996 262.9 64.9996C262.9 76.3996 254.3 85.2996 243.3 85.2996Z" fill="white"/>
+<path d="M393.3 96.1996V33.6996H379.6V39.9996C379.6 40.4996 379.3 40.8996 378.8 41.0996C378.3 41.2996 377.8 41.0996 377.5 40.6996C372.9 35.1996 365.7 32.0996 357.5 32.0996C340.3 32.0996 327 46.4996 327 64.9996C327 83.4996 340.4 97.7996 357.5 97.7996C365.4 97.7996 372.7 94.4996 377.5 88.6996C377.8 88.2996 378.4 88.1996 378.8 88.2996C379.3 88.4996 379.6 88.8996 379.6 89.3996V96.1996H393.3ZM360.6 85.2996C349.6 85.2996 341 76.3996 341 64.9996C341 53.5996 349.6 44.6996 360.6 44.6996C371.6 44.6996 380.2 53.5996 380.2 64.9996C380.2 76.3996 371.6 85.2996 360.6 85.2996Z" fill="white"/>
+<path d="M418.4 88.7994C418.5 88.7994 418.7 88.6994 418.8 88.6994C419.1 88.6994 419.5 88.8994 419.7 89.0994C424.4 94.5994 431.7 97.6994 439.7 97.6994C456.8 97.6994 470.2 83.2994 470.2 64.8994C470.2 55.8994 467.1 47.5994 461.4 41.4994C455.7 35.3994 448 32.0994 439.7 32.0994C431.8 32.0994 424.5 35.3994 419.7 41.0994C419.4 41.4994 418.9 41.5994 418.4 41.4994C417.9 41.2994 417.6 40.8994 417.6 40.3994V6.39941H403.8V96.1994H417.6V89.8994C417.6 89.3994 417.9 88.9994 418.4 88.7994ZM417 64.9994C417 53.5994 425.6 44.6994 436.6 44.6994C447.6 44.6994 456.2 53.5994 456.2 64.9994C456.2 76.3994 447.6 85.2994 436.6 85.2994C425.6 85.2994 417 76.2994 417 64.9994Z" fill="white"/>
+<path d="M510.1 46.4994C511.4 46.4994 512.6 46.5994 513.4 46.7994V32.5994C512.9 32.4994 512 32.3994 511.1 32.3994C503.9 32.3994 497.3 36.0994 493.8 41.9994C493.5 42.4994 493 42.6994 492.5 42.4994C492 42.3994 491.6 41.8994 491.6 41.3994V33.6994H477.9V96.2994H491.7V68.6994C491.7 54.9994 498.7 46.4994 510.1 46.4994Z" fill="white"/>
+<path d="M536.1 33.6992H522.1V96.2992H536.1V33.6992Z" fill="white"/>
+<path d="M528.9 6.49902C524.2 6.49902 520.4 10.299 520.4 14.999C520.4 19.699 524.2 23.499 528.9 23.499C533.6 23.499 537.4 19.699 537.4 14.999C537.4 10.299 533.6 6.49902 528.9 6.49902Z" fill="white"/>
+<path d="M577.1 32.0996C557.9 32.0996 544 45.8996 544 64.9996C544 74.2996 547.3 82.5996 553.2 88.5996C559.2 94.5996 567.6 97.8996 577 97.8996C584.8 97.8996 590.8 96.3996 602.2 87.9996L594.3 79.6996C588.7 83.3996 583.5 85.1996 578.4 85.1996C566.8 85.1996 558.1 76.4996 558.1 64.9996C558.1 53.4996 566.8 44.7996 578.4 44.7996C583.9 44.7996 589 46.5996 594.1 50.2996L602.9 41.9996C592.6 33.1996 583.3 32.0996 577.1 32.0996Z" fill="white"/>
+<path d="M626.5 68.699C626.7 68.499 627 68.399 627.3 68.399H627.4C627.7 68.399 628 68.599 628.3 68.799L650.4 96.199H667.4L638.8 61.599C638.4 61.099 638.4 60.399 638.9 59.999L665.2 33.699H648.3L625.6 56.499C625.3 56.799 624.8 56.899 624.3 56.799C623.9 56.599 623.6 56.199 623.6 55.699V6.49902H609.7V96.299H623.5V71.899C623.5 71.599 623.6 71.199 623.9 70.999L626.5 68.699Z" fill="white"/>
+<path d="M689.9 97.799C701.2 97.799 712.7 90.899 712.7 77.799C712.7 69.199 707.3 63.299 696.3 59.699L688.8 57.199C683.7 55.499 681.3 53.099 681.3 49.799C681.3 45.999 684.7 43.399 689.5 43.399C694.1 43.399 698.2 46.399 700.8 51.599L711.9 45.599C707.8 37.199 699.3 31.999 689.5 31.999C677.1 31.999 668.1 39.999 668.1 50.899C668.1 59.599 673.3 65.399 684 68.799L691.7 71.299C697.1 72.999 699.4 75.199 699.4 78.699C699.4 83.999 694.5 85.899 690.3 85.899C684.7 85.899 679.7 82.299 677.3 76.399L666 82.399C669.7 91.899 678.8 97.799 689.9 97.799Z" fill="white"/>
+<path d="M314.4 97.1994C318.8 97.1994 322.7 96.7994 324.9 96.4994V84.4994C323.1 84.6994 319.9 84.8994 318 84.8994C312.4 84.8994 308.1 83.8994 308.1 71.7994V46.0994C308.1 45.3994 308.6 44.8994 309.3 44.8994H322.8V33.5994H309.3C308.6 33.5994 308.1 33.0994 308.1 32.3994V14.3994H294.3V32.4994C294.3 33.1994 293.8 33.6994 293.1 33.6994H283.5V44.9994H293.1C293.8 44.9994 294.3 45.4994 294.3 46.1994V75.2994C294.3 97.1994 308.9 97.1994 314.4 97.1994Z" fill="white"/>
+</g>
+<defs>
+<clipPath id="clip0_1984_731">
+<rect width="712.8" height="113" fill="white"/>
+</clipPath>
+</defs>
+</svg><span class="divider"></span><span>Feature Tracker</span></div>
+  <div class="links">
+    <a href="#recent">Recent changes</a><a href="#catalog">Catalog</a>
+    <a href="#assistant">TRB assistant</a><a href="#runbook">Refresh job</a>
+  </div>
+</div></nav>
+
+<!--@@MOCKUP_BANNER--><!-- Mock-up notice. build_site.py drops this block when the bundle variable mockup_banner is "off" (production only). -->
+<div class="mockup" role="note"><div class="wrap"><b>⚠ MOCK-UP: this page shows what the Databricks Feature Tracker site should look like. All Tech Review Board (TRB) data on it (statuses, decisions, conditions, open questions, and documents) is synthetic and does not reflect any real review.</b></div></div>
+<!--@@/MOCKUP_BANNER-->
+
+<header class="hero"><div class="wrap">
+  <h1>Every Databricks feature, with <span class="accent">two approvals</span> that must both line up before your teams can use it.</h1>
+  <p class="sub">One source of truth for the enterprise: where Databricks is in a feature's lifecycle, where our Tech Review Board stands, and — the bottom line for a healthcare payer — whether it is cleared for PHI. Read the tiles for the summary, <b style="color:#fff">search</b> the full catalog below, or open any feature for its payer use case, docs, limitations, and both progress bars.</p>
+  <div class="cloud-tag">Demo data: AWS phases from public Databricks docs · re-baseline to your production cloud before use</div>
+  <div class="tiles">
+    <div class="tile ok"><div class="n" id="t-ok">0</div><div class="l">GA &amp; TRB-approved (PHI-eligible)</div></div>
+    <div class="tile pend"><div class="n" id="t-pend">0</div><div class="l">Pending board review</div></div>
+    <div class="tile prev"><div class="n" id="t-prev">0</div><div class="l">In Databricks preview / beta</div></div>
+    <div class="tile up"><div class="n" id="t-up">0</div><div class="l">Upcoming / announced</div></div>
+    <div class="tile block"><div class="n" id="t-block">0</div><div class="l">Blocked by enterprise</div></div>
+  </div>
+</div></header>
+
+<section class="policy"><div class="wrap policy-grid">
+  <div>
+    <h3>Axis A — Databricks maturity</h3>
+    <div class="legend-tube"><div class="lab">Upcoming → Private Preview → Beta → Public Preview → GA → Deprecated</div><div id="legend-a"></div></div>
+    <h3 style="margin-top:16px">Axis B — Enterprise / Tech Review Board</h3>
+    <div class="legend-tube"><div class="lab">Not Reviewed → Under Review → Approved w/ conditions → Approved</div><div id="legend-b"></div></div>
+  </div>
+  <div>
+    <h3>The PHI rule (computed, not hand-set)</h3>
+    <div class="rule">A feature is <b>PHI-eligible</b> only when it is <b>Generally Available</b> <i>and</i> <b>TRB-Approved</b>. Private Preview &amp; Beta carry no SLA and sit outside the compliance security profile — never PHI. Public Preview is production-capable but Databricks marks it <b>subject to compliance restrictions</b>, so it stays non-PHI / sandbox until the account team confirms coverage in writing.</div>
+    <div class="disclaimer">⚠ Phases are seed values from Databricks docs (AWS, Sep&nbsp;2026) for this demo. For production, re-baseline against the docs for your cloud and verify via the weekly refresh job before circulating.</div>
+  </div>
+</div></section>
+
+<section class="controls"><div class="wrap">
+  <div class="searchbar">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.5" y2="16.5"></line></svg>
+    <input type="search" id="q" placeholder="Search every feature — names, sub-features, use cases, limitations…">
+    <span class="count" id="count"></span>
+  </div>
+  <div class="ctl-row">
+    <span class="lbl">Filter</span>
+    <select id="f-domain"><option value="">All domains</option></select>
+    <select id="f-phase"><option value="">All Databricks phases</option></select>
+    <select id="f-ent"><option value="">All enterprise statuses</option></select>
+    <select id="f-phi"><option value="">PHI: any</option><option value="yes">PHI-eligible only</option><option value="no">Not PHI-eligible</option></select>
+    <select id="f-uc"><option value="">All use cases</option></select>
+    <select id="f-prio"><option value="">Any priority</option><option>High</option><option>Medium</option><option>Low</option></select>
+    <label class="chk"><input type="checkbox" id="f-up"> Coming soon only</label>
+    <button class="btn-reset" id="reset">Reset</button>
+  </div>
+</div></section>
+
+<section class="recent"><div class="wrap">
+  <div class="recent-head"><h2 id="recent">Changed recently &amp; coming soon</h2>
+    <button class="btn-hist" id="hist-btn" aria-expanded="false" aria-controls="hist">History</button></div>
+  <p class="recent-sub">Auto-populated from the Databricks release-notes RSS feed (<a href="https://docs.databricks.com/aws/en/feed.xml">feed.xml</a>) and the "what's coming" page — new features and phase transitions for the platform team to triage, refreshed weekly.</p>
+  <div class="hist" id="hist" hidden>
+    <div class="hist-head"><b>Previous versions</b> · one entry per refresh date, last 3 months. Pick a date to see what changed.</div>
+    <div class="hist-grid"><div class="hist-dates" id="hist-dates"></div><div class="hist-body" id="hist-body"></div></div>
+  </div>
+  <div id="feed"></div>
+</div></section>
+
+<section class="catalog"><div class="wrap"><div id="catalog"></div></div></section>
+
+<section class="assistant"><div class="wrap">
+  <h2>Ask the TRB assistant</h2>
+  <p class="lead">Two tools, split by data shape: structured status questions go to a Genie agent over the review register; free-text "why" questions go to a Knowledge Assistant over the full TRB documents.</p>
+  <div class="asst-grid">
+    <div class="asst-card"><div class="tag">Genie agent · structured · demo only</div><h3>Review Board Analytics</h3>
+      <p>Natural language → SQL over the TRB register (35 reviews, conditions, exceptions, control mappings, document index) and the PHI-eligibility view, which uses each feature's live Databricks phase. Best for status, PHI, and portfolio questions.</p>
+      <ul class="ex"><li>"Which Databricks features are approved for PHI?"</li><li>"What open conditions does Serverless compute have?"</li><li>"What did the TRB decide at the June 16, 2026 meeting?"</li></ul>
+      <a class="cta" href="https://fevm-serverless-stable-swv01.cloud.databricks.com/genie/rooms/01f1c64ef6e2142889e3732f2c919d6d?o=7474655474830396" id="genie-link" target="_blank" rel="noopener">Open Genie agent ↗</a>
+      <div class="unplugged"><b>Note:</b> this link won't work for you unless it is being demoed. The Genie agent lives in a demo Databricks workspace, and access has not been granted to viewers of this site.</div>
+      <div class="stub">Built and benchmarked (20/20) in the demo workspace on synthetic TRB data.</div></div>
+    <div class="asst-card"><div class="tag">Knowledge Assistant · unstructured · demo only</div><h3>Review Board Documents</h3>
+      <p>Agent Bricks Knowledge Assistant over the full text of the 74 TRB documents as PDFs (charter, minutes, intake requests, risk assessments, decision records, approval letters, exceptions). Answers cite the PDF and page.</p>
+      <ul class="ex"><li>"Why did the TRB deny exception EXC-2026-001?"</li><li>"What is required before any PHI can be shared through Databricks-to-Open sharing?"</li><li>"What does the TRB charter say about quorum?"</li></ul>
+      <a class="cta" href="https://fevm-serverless-stable-swv01.cloud.databricks.com/ml/endpoints/ka-00955c7d-endpoint?o=7474655474830396" id="ka-link" target="_blank" rel="noopener">Open Knowledge Assistant ↗</a>
+      <div class="unplugged"><b>Note:</b> this link won't work for you unless it is being demoed. The Knowledge Assistant lives in a demo Databricks workspace, and access has not been granted to viewers of this site.</div>
+      <div class="stub">In the platform workspace under <b>Agents</b> → "Feature Tracker Review Board Knowledge Assistant" (sign-in required). Eval 11/11. Synthetic data.</div></div>
+  </div>
+</div></section>
+
+<section class="runbook"><div class="wrap">
+  <h2 id="runbook">Weekly refresh job <span class="pausebadge">built · schedule paused</span></h2>
+  <p class="rb-sub">A serverless Databricks Job (Asset Bundle in <code>refresh-job/</code>) is set to run <b>Mondays 06:00 ET</b>. The schedule is paused, so for now the job runs on demand. It reads the release-notes feed and workspace posture, updates Databricks phase (Axis A) in <code>platform.feature_tracker.features</code>, and republishes this page, so the tiles recompute from fresh data. It only <i>reads</i> TRB status (Axis B) and open TRB questions from the review register in <code>platform.trb</code>; it never writes them. Seven tasks: <code>ensure_tables</code> → <code>ingest_feed</code> → <code>detect_changes</code> → <code>apply_changes</code> → <code>publish_site</code> → <code>publish_github</code>, with <code>snapshot_posture</code> as a side branch that can't block publishing.</p>
+  <div class="steps">
+    <div class="step"><h4>1 · Ingest the release feed</h4><p>Pulls <a href="https://docs.databricks.com/aws/en/feed.xml">feed.xml</a> (~30 items/week), dedupes, and drops model-catalog and version churn. Items on or before the baseline date (<code>feed_baseline_date</code>) count as already in the seed. Phase comes from the title ("is in Beta", "generally available"); "will soon" means Upcoming.</p>
+      <pre><span class="c"># preview locally, no workspace needed</span>
+python3 refresh-job/src/dry_run.py --days 7</pre></div>
+    <div class="step"><h4>2 · Match &amp; read posture</h4><p>Matches each item to a feature by name, then feed category, then an LLM (<code>ai_query</code>). A capability <i>of</i> a feature becomes a child row. Also snapshots <code>compliance-security-profile</code> and related settings.</p></div>
+    <div class="step"><h4>3 · Apply safe changes, hold the rest</h4><p>New features enter as <b>Not Reviewed / Low</b>. A change that would make a feature <b>PHI-eligible</b> (it reaches GA while TRB-Approved) is <b>held</b> for platform-team sign-off in <code>proposed_changes</code>. Losing eligibility applies at once (fail closed).</p></div>
+    <div class="step"><h4>4 · Publish</h4><p>Rebuilds this self-contained page from Unity Catalog with <code>scripts/build_site.py</code> (features, live TRB status, open TRB questions, and about 3 months of change history for the <b>History</b> button) and writes it to the <code>site</code> volume, plus a dated archive. <code>publish_github</code> then commits <code>index.html</code> to the public GitHub Pages repo; it skips cleanly if the GitHub token secret is missing. The team is emailed on success or failure.</p></div>
+    <div class="step"><h4>5 · Monthly documentation check</h4><p>A second job runs on the <b>first Monday of each month, 07:00 ET</b> (also paused for now): <code>ensure_tables</code> → <code>check_docs</code> → <code>apply_doc_changes</code> → <code>publish_site</code> → <code>publish_github</code>. It reads each feature's Databricks doc page, plus any dedicated limitations page it links to, and uses an LLM (<code>ai_query</code>) to extract the limitations that apply to that feature. The LLM is asked again only when the page text changes. Empty limitations are <b>filled automatically</b>; replacing text someone already wrote is <b>held</b> in <code>doc_proposals</code> for sign-off. A moved page updates the doc link; a dead link is held. Changes appear under <b>History</b>. It never writes phase or TRB status.</p></div>
+  </div>
+</div></section>
+
+<footer><div class="wrap fgrid">
+  <div><h5>About</h5><p style="color:#9fbfd6;max-width:360px">Databricks Feature Tracker: the internal governance view of Databricks features across the enterprise. Dual-approval model: Databricks maturity × Tech Review Board status, with computed PHI-eligibility for a healthcare payer.</p></div>
+  <div><h5>Databricks sources</h5>
+    <a href="https://docs.databricks.com/aws/en/release-notes/release-types">Release types</a>
+    <a href="https://docs.databricks.com/aws/en/release-notes/">Release notes hub</a>
+    <a href="https://docs.databricks.com/aws/en/release-notes/whats-coming">What's coming</a>
+    <a href="https://docs.databricks.com/aws/en/feed.xml">Release notes RSS</a></div>
+  <div><h5>Governance</h5>
+    <a href="https://docs.databricks.com/aws/en/admin/workspace-settings/manage-previews">Manage previews</a>
+    <a href="https://docs.databricks.com/aws/en/security/privacy/security-profile">Compliance security profile</a></div>
+</div></footer>
+
+<script>
+/* Data is injected by scripts/build_site.py from data/*.json. Do not edit here. */
+const DOMAINS=/*@@DOMAINS@@*/[];
+const FEATURES=/*@@FEATURES@@*/[];
+const META=/*@@META@@*/{};
+const AXIS_A=["Upcoming","Private Preview","Beta","Public Preview","GA","Deprecated"];
+const A_PCT={"Upcoming":10,"Private Preview":30,"Beta":50,"Public Preview":74,"GA":100,"Deprecated":100};
+const AXIS_B=["Not Reviewed","Under Review","Approved with Conditions","Approved","Rejected","Retired"];
+const B_PCT={"Not Reviewed":10,"Under Review":38,"Approved with Conditions":70,"Approved":100,"Rejected":100,"Retired":100};
+function aColor(p){return {"Upcoming":"var(--gray)","Private Preview":"var(--gray)","Beta":"var(--amber)","Public Preview":"var(--blue)","GA":"var(--green)","Deprecated":"var(--red-dk)"}[p]||"var(--gray)";}
+function bColor(p){return {"Not Reviewed":"var(--gray)","Under Review":"var(--amber)","Approved with Conditions":"var(--blue)","Approved":"var(--green)","Rejected":"var(--red-dk)","Retired":"var(--gray)"}[p]||"var(--gray)";}
+function isPhi(f){return f.dbxPhase==="GA" && f.enterpriseStatus==="Approved";}
+
+/* mini tube — done stages tinted, current stage solid + marked */
+function miniTube(stages,current,colorFn){
+  const i=stages.indexOf(current), col=colorFn(current);
+  const segs=stages.map((s,idx)=>{
+    const bg=idx<=i?col:'#e8e8e8', op=idx<i?'opacity:.4':'';
+    return `<div class="s" style="background:${bg};${op}"></div>`;
+  }).join("");
+  return `<div class="tube"><div class="seg">${segs}</div><div class="cap"><span class="dot2" style="background:${col}"></span><b style="color:${col}">${current}</b></div></div>`;
+}
+/* full labeled stepper — done tinted, current solid with a glow ring + status pill */
+function stepper(label,stages,current,colorFn){
+  const i=stages.indexOf(current), col=colorFn(current);
+  const nodes=stages.map((s,idx)=>{
+    const cls=idx<i?'done':idx===i?'on':'';
+    const bg=idx<=i?col:'#e8e8e8', op=idx<i?'opacity:.4':'';
+    const glow=idx===i?`;box-shadow:0 0 0 2px #fff,0 0 0 4px ${col}`:'';
+    return `<div class="node ${cls}"><div class="bar" style="background:${bg};${op}${glow}"></div><div class="t">${s}</div></div>`;
+  }).join("");
+  return `<div class="stepper"><div class="lab"><span>${label}</span><b style="color:${col};border:1px solid ${col}">${current}</b></div><div class="track">${nodes}</div></div>`;
+}
+
+/* legend */
+document.getElementById("legend-a").innerHTML=miniTube(AXIS_A,"Public Preview",aColor);
+document.getElementById("legend-b").innerHTML=miniTube(AXIS_B,"Under Review",bColor);
+
+/* feed */
+const FEED=/*@@FEED@@*/[];
+function feedPill(p){const c={GA:"var(--green)",Upcoming:"var(--blue)",EOL:"var(--red-dk)"}[p]||"var(--gray)";
+  return `<span class="fp" style="background:${p==='GA'?'rgba(0,169,114,.12)':p==='EOL'?'rgba(255,54,33,.1)':'rgba(29,111,171,.12)'};color:${c}">${p}</span>`;}
+document.getElementById("feed").innerHTML=FEED.map(f=>`<div class="feed-row"><div class="date">${f.date}</div>${feedPill(f.p)}<div class="txt">${f.t}</div></div>`).join("");
+
+/* history: one entry per refresh date (HTML in .t is escaped by build_site.py) */
+const HISTORY=/*@@HISTORY@@*/[];
+function showHist(i){
+  document.querySelectorAll("#hist-dates button").forEach((b,j)=>b.classList.toggle("on",i===j));
+  const h=HISTORY[i];
+  document.getElementById("hist-body").innerHTML=h.changes.length
+    ? h.changes.map(c=>`<div class="feed-row">${feedPill(c.p)}<div class="txt">${c.t}</div></div>`).join("")
+    : `<div class="empty">No feature changes detected on ${h.date} (${h.runs} run${h.runs>1?"s":""}). The page was republished as is.</div>`;
+}
+document.getElementById("hist-dates").innerHTML=HISTORY.length
+  ? HISTORY.map(h=>`<button type="button">${h.date}<span class="n">${h.changes.length} change${h.changes.length===1?"":"s"}</span></button>`).join("")
+  : `<div class="empty">No refresh history yet.</div>`;
+document.querySelectorAll("#hist-dates button").forEach((b,i)=>b.addEventListener("click",()=>showHist(i)));
+document.getElementById("hist-btn").addEventListener("click",e=>{
+  const p=document.getElementById("hist"),open=p.hidden;p.hidden=!open;e.currentTarget.setAttribute("aria-expanded",open);
+  if(open&&HISTORY.length&&!document.querySelector("#hist-dates button.on"))showHist(0);
+});
+
+/* selects */
+function opt(v){const o=document.createElement("option");o.value=v;o.textContent=v;return o;}
+DOMAINS.forEach(d=>document.getElementById("f-domain").appendChild(opt(d)));
+AXIS_A.forEach(p=>document.getElementById("f-phase").appendChild(opt(p)));
+AXIS_B.forEach(e=>document.getElementById("f-ent").appendChild(opt(e)));
+[...new Set(FEATURES.flatMap(f=>f.useCases))].sort().forEach(u=>document.getElementById("f-uc").appendChild(opt(u)));
+
+/* filter + render */
+const S={q:"",domain:"",phase:"",ent:"",phi:"",uc:"",prio:"",up:false};
+function matches(f){
+  if(S.domain&&f.domain!==S.domain)return false;
+  if(S.phase&&f.dbxPhase!==S.phase)return false;
+  if(S.ent&&f.enterpriseStatus!==S.ent)return false;
+  if(S.phi==="yes"&&!isPhi(f))return false;
+  if(S.phi==="no"&&isPhi(f))return false;
+  if(S.uc&&!f.useCases.includes(S.uc))return false;
+  if(S.prio&&f.priority!==S.prio)return false;
+  if(S.up&&f.dbxPhase!=="Upcoming")return false;
+  if(S.q){const h=(f.name+" "+f.domain+" "+f.useCases.join(" ")+" "+f.limitations+" "+f.blurb+" "+f.objections+" "+f.trbQuestions.join(" ")).toLowerCase();if(!h.includes(S.q.toLowerCase()))return false;}
+  return true;
+}
+function render(){
+  document.getElementById("t-ok").textContent=FEATURES.filter(isPhi).length;
+  document.getElementById("t-pend").textContent=FEATURES.filter(f=>f.enterpriseStatus==="Under Review"||f.enterpriseStatus==="Not Reviewed").length;
+  document.getElementById("t-prev").textContent=FEATURES.filter(f=>f.dbxPhase==="Beta"||f.dbxPhase==="Public Preview"||f.dbxPhase==="Private Preview").length;
+  document.getElementById("t-up").textContent=FEATURES.filter(f=>f.dbxPhase==="Upcoming").length;
+  document.getElementById("t-block").textContent=FEATURES.filter(f=>f.enterpriseStatus==="Rejected"||f.enterpriseStatus==="Retired").length;
+
+  const host=document.getElementById("catalog");host.innerHTML="";let shownCount=0;
+  DOMAINS.forEach(dom=>{
+    const inDom=FEATURES.filter(f=>f.domain===dom);
+    const parents=inDom.filter(f=>!f.parent);
+    const rows=[];
+    parents.forEach(par=>{
+      const kids=inDom.filter(f=>f.parent===par.id);
+      const kidMatch=kids.filter(matches);
+      const parMatch=matches(par);
+      if(parMatch||kidMatch.length){
+        rows.push({f:par,child:false});
+        // if parent matched by itself and no filter narrowing children, show matching kids (or all if parent-only match)
+        const showKids=kidMatch.length?kidMatch:(parMatch?kids:[]);
+        showKids.forEach(k=>rows.push({f:k,child:true}));
+      }
+    });
+    // standalone (no parent, but may itself be a leaf already handled). Also handle leaf features with no children already in parents loop.
+    if(!rows.length)return;
+    shownCount+=rows.length;
+    const sec=document.createElement("div");sec.className="domain";
+    sec.innerHTML=`<div class="dhead"><span class="dname">${dom}</span><span class="dcount">${rows.length}</span><span class="chev">▾</span></div><div class="dbody"></div>`;
+    const body=sec.querySelector(".dbody");
+    rows.forEach(({f,child})=>{
+      const phi=isPhi(f);
+      const el=document.createElement("div");el.className="feat"+(child?" child":"");
+      el.innerHTML=`
+        <div class="frow">
+          <div class="fname">${f.name}${f.expected?` <small>expected ${f.expected}</small>`:(f.limitations&&!child?`<small>${f.limitations.slice(0,70)}</small>`:"")}</div>
+          <div class="hide-sm">${miniTube(AXIS_A,f.dbxPhase,aColor)}</div>
+          <div class="hide-sm">${miniTube(AXIS_B,f.enterpriseStatus,bColor)}</div>
+          <span class="pill ${phi?'phi-ok':'phi-no'} hide-sm">${phi?'PHI-eligible':'No PHI'}</span>
+          <span class="prio-${f.priority} hide-sm" title="Review priority">${f.priority}</span>
+          <span class="chev2">›</span>
+        </div>
+        <div class="drawer">
+          ${f.blurb?`<div class="blurb"><span class="uc-tag">What it is · payer use case</span>${f.blurb}</div>`:""}
+          ${stepper("Databricks maturity",AXIS_A,f.dbxPhase,aColor)}
+          ${stepper("Enterprise / TRB",AXIS_B,f.enterpriseStatus,bColor)}
+          <div class="facts">
+            <span class="pill ${phi?'phi-ok':'phi-no'}">${phi?'PHI-eligible':'Not PHI-eligible'}</span>
+            <span class="fact">Review priority <b class="prio-${f.priority}">${f.priority}</b></span>
+            <span class="fact">Last verified <b style="color:var(--green)">✓ ${f.lastVerified}</b></span>
+            ${f.expected?`<span class="fact">Expected <b>${f.expected}</b></span>`:""}
+          </div>
+          <div class="dgrid">
+            <div>
+              <div class="block"><h4>Team use cases (drives review priority)</h4>
+                <div class="chips">${f.useCases.map(u=>`<span class="chip">${u}</span>`).join('')||'—'}</div></div>
+              <div class="block"><h4>Documentation</h4><div class="doclinks">${f.docLink?`<a href="${f.docLink}" target="_blank">Databricks docs ↗</a>`:'<span style="color:var(--muted);font-size:13px">No doc link yet — add via refresh job.</span>'}</div></div>
+            </div>
+            <div>
+              <div class="block"><h4>Limitations (for a reliable review)</h4><div class="limit">${f.limitations||"—"}${f.limitations&&f.docLink?`<br><a class="limlink" href="${f.docLink}" target="_blank">See limitations in docs ↗</a>`:""}</div></div>
+              <div class="block"><h4>TRB objections / notes</h4><div class="obj">${f.objections||"No objections recorded."}${f.trbQuestions.length?`<div class="trbq"><b>Open questions from the TRB review (${f.trbReview})</b><ol>${f.trbQuestions.map(q=>`<li>${q}</li>`).join('')}</ol></div>`:""}</div></div>
+            </div>
+          </div>
+        </div>`;
+      el.querySelector(".frow").addEventListener("click",()=>el.classList.toggle("open"));
+      body.appendChild(el);
+    });
+    sec.querySelector(".dhead").addEventListener("click",()=>sec.classList.toggle("collapsed"));
+    host.appendChild(sec);
+  });
+  document.getElementById("count").textContent=shownCount+" of "+FEATURES.length+" features";
+  if(!shownCount)host.innerHTML='<p style="padding:30px 0;color:var(--muted)">No features match the current filters.</p>';
+}
+
+[["q","q","input"],["f-domain","domain","change"],["f-phase","phase","change"],["f-ent","ent","change"],
+ ["f-phi","phi","change"],["f-uc","uc","change"],["f-prio","prio","change"]].forEach(([id,key,ev])=>{
+  document.getElementById(id).addEventListener(ev,e=>{S[key]=e.target.value;render();});
+});
+document.getElementById("f-up").addEventListener("change",e=>{S.up=e.target.checked;render();});
+document.getElementById("reset").addEventListener("click",()=>{
+  Object.assign(S,{q:"",domain:"",phase:"",ent:"",phi:"",uc:"",prio:"",up:false});
+  ["q","f-domain","f-phase","f-ent","f-phi","f-uc","f-prio"].forEach(id=>document.getElementById(id).value="");
+  document.getElementById("f-up").checked=false;render();
+});
+render();
+</script>
+</body>
+</html>

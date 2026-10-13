@@ -1,0 +1,81 @@
+bundle:
+  name: databricks_feature_tracker
+
+include:
+  - refresh-job/resources/*.yml
+  - trb/resources/*.yml
+
+# Workspace-specific values have no defaults here. Set them for your environment in
+# .databricks/bundle/<target>/variable-overrides.json (gitignored), for example:
+#   {"catalog": "my_catalog", "genie_warehouse_id": "<warehouse id>", "github_repo": "<owner>/<pages repo>"}
+# or with --var name=value / BUNDLE_VAR_<name>. Choose the workspace with --profile <profile>.
+variables:
+  catalog:
+    description: Catalog holding the tracker and TRB schemas
+    default: platform
+  schema:
+    description: Tracker schema (job-owned)
+    default: feature_tracker
+  trb_schema:
+    description: TRB schema (human-curated; the job only reads it)
+    default: trb
+  llm_endpoint:
+    description: Foundation-model endpoint for ai_query matching. It must support batch inference; databricks-claude-sonnet-5-5 does not (PERMISSION_DENIED, 2026-10-08).
+    default: databricks-claude-sonnet-4-5
+  feed_url:
+    description: >
+      Release-notes RSS feed for your cloud. AWS https://docs.databricks.com/aws/en/feed.xml,
+      Azure https://learn.microsoft.com/en-us/azure/databricks/feed.xml,
+      GCP https://docs.databricks.com/gcp/en/feed.xml. Serverless needs egress to that host.
+      If you switch feeds on an existing deployment, move feed_baseline_date to the switch date
+      (item ids are URLs, so the new feed's recent items would otherwise be proposed again).
+    default: https://docs.databricks.com/aws/en/feed.xml
+  feed_baseline_date:
+    description: Feed items published on or before this date are treated as already in the seed (data/features.json). Move it to the pull date after each scripts/pull_live_data.sh that you commit.
+    default: "2026-10-13"
+  github_repo:
+    description: "PUBLIC site repo (<owner>/<repo>) that GitHub Pages serves; it holds only index.html. Empty = skip publish_github."
+    default: ""
+  pages_branch:
+    description: Branch GitHub Pages serves
+    default: main
+  secret_scope:
+    description: Secret scope holding github_token (fine-grained PAT, Contents read/write on github_repo only)
+    default: feature_tracker
+  genie_warehouse_id:
+    description: Serverless SQL warehouse id for the Review Board Genie agent (Genie needs serverless). Set per environment.
+  genie_parent_path:
+    description: Workspace folder that holds the Genie agent (immutable; changing it recreates the agent)
+    default: /Workspace/Users/${workspace.current_user.userName}/feature_tracker
+  notify_email:
+    description: Platform-team address for failure and success notices
+    default: platform-team@example.com
+  schedule_pause:
+    description: PAUSED until the platform team turns the weekly schedule on
+    default: PAUSED
+
+  # ###########################################################################
+  # !!! REMOVE IN PRODUCTION !!!
+  # The published page carries a bold "MOCK-UP / all TRB data is synthetic"
+  # banner. Set mockup_banner to "off" in the production target (or here) once
+  # the page runs on real TRB data. Leave it "on" for every demo target.
+  # ###########################################################################
+  mockup_banner:
+    description: "on = show the mock-up / synthetic-TRB-data banner; set to off in production"
+    default: "on"
+
+targets:
+  dev:
+    mode: development
+    default: true
+    # catalog, genie_warehouse_id and github_repo come from variable-overrides.json (see the top).
+    variables:
+      notify_email: ${workspace.current_user.userName}
+      # The demo stays on AWS. To switch clouds, see "Release-notes feed per cloud" in the README.
+      feed_url: https://docs.databricks.com/aws/en/feed.xml
+  prod:
+    mode: production
+    variables:
+      schedule_pause: UNPAUSED
+      # !!! REMOVE IN PRODUCTION: switch to "off" once the page carries real TRB data.
+      mockup_banner: "on"

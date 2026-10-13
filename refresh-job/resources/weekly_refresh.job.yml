@@ -1,0 +1,156 @@
+resources:
+  jobs:
+    feature_tracker_weekly_refresh:
+      name: "Databricks Feature Tracker: weekly refresh"
+      description: >
+        Reads the Databricks release-notes feed and workspace posture, proposes Axis A (phase)
+        changes, applies the safe ones, holds anything that would make a feature PHI-eligible,
+        and republishes the tracker page. Never writes TRB status.
+
+      schedule:
+        quartz_cron_expression: "0 0 6 ? * MON"   # Mondays 06:00
+        timezone_id: America/New_York
+        pause_status: ${var.schedule_pause}
+
+      max_concurrent_runs: 1
+      timeout_seconds: 3600
+      email_notifications:
+        on_failure: [ "${var.notify_email}" ]
+        on_success: [ "${var.notify_email}" ]
+
+      environments:
+        - environment_key: default
+          spec:
+            client: "4"
+            dependencies:
+              - databricks-sdk>=0.40
+
+      tasks:
+        - task_key: ensure_tables
+          environment_key: default
+          spark_python_task:
+            python_file: ../src/tasks/ensure_tables.py
+            parameters: &common
+              - --src
+              - ${workspace.file_path}/refresh-job/src
+              - --bundle-root
+              - ${workspace.file_path}
+              - --catalog
+              - ${var.catalog}
+              - --schema
+              - ${var.schema}
+              - --trb-schema
+              - ${var.trb_schema}
+              - --run-id
+              - "{{job.run_id}}"
+
+        - task_key: ingest_feed
+          depends_on: [ { task_key: ensure_tables } ]
+          environment_key: default
+          max_retries: 2
+          min_retry_interval_millis: 300000
+          spark_python_task:
+            python_file: ../src/tasks/ingest_feed.py
+            parameters:
+              - --src
+              - ${workspace.file_path}/refresh-job/src
+              - --bundle-root
+              - ${workspace.file_path}
+              - --catalog
+              - ${var.catalog}
+              - --schema
+              - ${var.schema}
+              - --trb-schema
+              - ${var.trb_schema}
+              - --run-id
+              - "{{job.run_id}}"
+              - --feed-url
+              - ${var.feed_url}
+
+        - task_key: snapshot_posture
+          depends_on: [ { task_key: ensure_tables } ]
+          environment_key: default
+          spark_python_task:
+            python_file: ../src/tasks/snapshot_posture.py
+            parameters: *common
+
+        - task_key: detect_changes
+          depends_on: [ { task_key: ingest_feed } ]
+          environment_key: default
+          spark_python_task:
+            python_file: ../src/tasks/detect_changes.py
+            parameters:
+              - --src
+              - ${workspace.file_path}/refresh-job/src
+              - --bundle-root
+              - ${workspace.file_path}
+              - --catalog
+              - ${var.catalog}
+              - --schema
+              - ${var.schema}
+              - --trb-schema
+              - ${var.trb_schema}
+              - --run-id
+              - "{{job.run_id}}"
+              - --llm-endpoint
+              - ${var.llm_endpoint}
+              - --baseline-date
+              - ${var.feed_baseline_date}
+
+        - task_key: apply_changes
+          depends_on: [ { task_key: detect_changes } ]
+          environment_key: default
+          spark_python_task:
+            python_file: ../src/tasks/apply_changes.py
+            parameters: *common
+
+        - task_key: publish_site
+          # snapshot_posture is a separate branch: a failed settings read must not block
+          # publishing, but a failed apply must.
+          depends_on: [ { task_key: apply_changes } ]
+          environment_key: default
+          spark_python_task:
+            python_file: ../src/tasks/publish_site.py
+            parameters:
+              - --src
+              - ${workspace.file_path}/refresh-job/src
+              - --bundle-root
+              - ${workspace.file_path}
+              - --catalog
+              - ${var.catalog}
+              - --schema
+              - ${var.schema}
+              - --trb-schema
+              - ${var.trb_schema}
+              - --run-id
+              - "{{job.run_id}}"
+              # !!! REMOVE IN PRODUCTION: mock-up banner. Set var.mockup_banner to "off" (see databricks.yml).
+              - --mockup-banner
+              - ${var.mockup_banner}
+
+        - task_key: publish_github
+          depends_on: [ { task_key: publish_site } ]
+          environment_key: default
+          spark_python_task:
+            python_file: ../src/tasks/publish_github.py
+            parameters:
+              - --src
+              - ${workspace.file_path}/refresh-job/src
+              - --bundle-root
+              - ${workspace.file_path}
+              - --catalog
+              - ${var.catalog}
+              - --schema
+              - ${var.schema}
+              - --trb-schema
+              - ${var.trb_schema}
+              - --run-id
+              - "{{job.run_id}}"
+              - --github-repo
+              - ${var.github_repo}
+              - --pages-branch
+              - ${var.pages_branch}
+              - --secret-scope
+              - ${var.secret_scope}
+              - --secret-key
+              - github_token
