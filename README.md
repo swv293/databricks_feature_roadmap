@@ -36,6 +36,57 @@ python3 refresh-job/src/dry_run.py --days 7   # what this week's feed would chan
 uvx pytest refresh-job/tests
 ```
 
+## Recreate this project from scratch
+
+Everything needed is in this repo. Do the steps in order; details are in the sections below.
+
+**Prerequisites** in your Databricks workspace:
+- A Unity Catalog **catalog** you can use, with `USE CATALOG` and `CREATE SCHEMA` (the jobs create the
+  `feature_tracker` and `trb` schemas in it).
+- **Serverless** jobs, and a **serverless SQL warehouse** (Genie needs one).
+- A foundation-model endpoint that supports batch `ai_query` (default `databricks-claude-sonnet-4-5`).
+- **Agent Bricks Knowledge Assistant** access, for the documents assistant (optional).
+- **Outbound access** from serverless to `docs.databricks.com` (and `learn.microsoft.com` for the Azure feed).
+  See [Release-notes feed per cloud](#release-notes-feed-per-cloud).
+- Locally: the Databricks CLI (v1.20 or later), Python 3.10 or later, and `uvx` for the tests.
+
+**Steps** (`C` = your catalog, `P` = your CLI profile, `W` = your serverless warehouse id):
+
+1. **Clone and check:** `uvx pytest refresh-job/tests` and `python3 scripts/build_site.py`.
+2. **Set your values** in `.databricks/bundle/dev/variable-overrides.json` (see
+   [Set up your environment](#set-up-your-environment)): at least `catalog` and `genie_warehouse_id`.
+3. **Generate the TRB data and Genie definition for your catalog:**
+   ```bash
+   python3 trb/genie/generate_extended.py --catalog $C
+   python3 trb/genie/build_genie.py --catalog $C --profile $P --warehouse-id $W --no-validate
+   ```
+4. **Deploy:** `databricks bundle deploy -t dev --profile $P`. This creates the four jobs and the Genie agent.
+5. **Run the weekly job once:** `databricks bundle run feature_tracker_weekly_refresh -t dev --profile $P`.
+   It creates `$C.feature_tracker`, seeds 257 features, reads the feed, and publishes the page to the volume
+   `$C.feature_tracker.site`.
+6. **Create the TRB register:** `databricks bundle run review_board_setup -t dev --profile $P`.
+7. **Restore the Genie benchmarks:** `databricks bundle run review_board_genie_maintenance -t dev --profile $P`.
+   Repeat after every deploy.
+8. **Knowledge Assistant (optional):** `python3 trb/ka/provision_ka.py --profile $P --catalog $C --wait`, then
+   `python3 trb/ka/eval_ka.py --profile $P --endpoint <ka endpoint it prints>`.
+9. **Point the page's buttons at your agents:** set `genie_url` (the agent's URL in your workspace) and `ka_url`
+   (its serving-endpoint page) in the overrides file, deploy, repeat step 7, and run the weekly job again.
+   If they're empty, the page says "Not configured".
+10. **Hosting (optional):** for GitHub Pages, set `github_repo` and the token secret (see [Hosting](#hosting)).
+    Otherwise copy `index.html` from the volume to your internal host.
+11. **Monthly docs check (optional):** `databricks bundle run feature_tracker_monthly_docs -t dev --profile $P`.
+12. **Turn the schedules on** when ready: deploy the `prod` target, or set `schedule_pause: UNPAUSED`.
+    Before real TRB data goes in, set `mockup_banner` to `off` and host the page internally.
+
+> **Not yet tested in an empty catalog:** step 4 creates the Genie agent before step 6 creates the tables it
+> reads. Recreation was verified only in a catalog that already had the TRB tables. If step 4 fails on the agent,
+> move `trb/resources/review_board.genie.yml` and `trb/resources/review_board_genie_maintenance.job.yml` out of
+> `trb/resources/`, deploy, run steps 5 and 6, move both files back, deploy again, then run step 7.
+
+The PDFs for the Knowledge Assistant are committed and name no catalog, so `trb/genie/render_pdfs.py` is only
+needed after you edit a TRB document. It uses a Databricks-internal converter; elsewhere, set `MARKDOWN_TO_PDF`
+to any script that takes `--input <md> --output <pdf>`.
+
 ## Weekly refresh job
 
 A one-page summary of both jobs (tasks, cost, what is and isn't Databricks, internal hosting) is in
@@ -106,11 +157,15 @@ on your machine):
 {
   "catalog": "<your catalog>",
   "genie_warehouse_id": "<serverless SQL warehouse id>",
-  "github_repo": "<owner>/<pages repo>"
+  "github_repo": "<owner>/<pages repo>",
+  "genie_url": "https://<workspace host>/genie/rooms/<space id>",
+  "ka_url": "https://<workspace host>/ml/endpoints/<ka endpoint>"
 }
 ```
 
 - `github_repo` is optional: leave it out and `publish_github` skips (the page still goes to the volume).
+- `genie_url` and `ka_url` are the page's "Open Genie agent" / "Open Knowledge Assistant" buttons. Leave them
+  out until the agents exist; the page then says "Not configured".
 - `notify_email` defaults to the deploying user in `dev`; set it for other targets.
 - `genie_parent_path` defaults to `/Workspace/Users/<you>/feature_tracker`.
 - The workspace comes from `--profile <profile>` on every command; `databricks.yml` names no profile or host.
@@ -234,7 +289,7 @@ serving endpoint `ka-<id>-endpoint`). In the workspace: **Agents** → that name
 Eval: 11/11 (`trb/ka/eval_questions.json`).
 
 ```bash
-python3 trb/genie/render_pdfs.py                          # markdown -> branded PDFs (trb/docs/pdf/), document-control table on page 1
+python3 trb/genie/render_pdfs.py                          # optional (PDFs are committed): markdown -> branded PDFs (trb/docs/pdf/), document-control table on page 1
 databricks fs cp -r trb/docs/pdf dbfs:/Volumes/$C/trb/corpus_pdf --overwrite --profile $P
 python3 trb/ka/provision_ka.py --profile $P --catalog $C   # create or update, attach source, sync (idempotent)
 python3 trb/ka/eval_ka.py --profile $P --endpoint <ka-endpoint>
