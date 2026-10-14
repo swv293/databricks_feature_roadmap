@@ -249,4 +249,53 @@ Assistant** answers "why" and "what does the document say" with citations, and s
 
 - **Axis A (phase)**: `platform.feature_tracker.features`, maintained by the job.
 - **Axis B (TRB)**: `platform.trb.reviews` and related tables, curated by people. The page reads the latest review per `feature_key`, and falls back to the seed value.
-- **Curated text**: `data/features.json` in git is the seed. After the first run, edit the curated columns in `features`.
+- **Curated text**: `data/features.json` in git is the seed. After the first run, edit the curated columns in `features`
+  (see [Editing curated feature text](#editing-curated-feature-text)).
+
+## Editing curated feature text
+
+After the first run, the curated columns (`limitations`, `blurb`, `doc_link`, `priority`, `use_cases`,
+`objections`) live in `<catalog>.feature_tracker.features`. Correct them with SQL. The page shows the change after
+the next publish (the Monday run, or a manual run).
+
+```sql
+/* 1. Find the exact feature_key. */
+SELECT feature_key, limitations, doc_link
+FROM <catalog>.feature_tracker.features
+WHERE name ILIKE '%model serving%';
+
+/* 2. Update it. */
+UPDATE <catalog>.feature_tracker.features
+SET limitations = '1000 endpoints per workspace; 300K QPS per endpoint with route optimization; 16 MB payload limit (4 MB for agents); 597s max execution time; limited region availability',
+    updated_at  = current_timestamp()
+WHERE feature_key = 'Model Serving@AI / ML';
+
+/* 3. Check it. */
+SELECT feature_key, limitations, updated_at
+FROM <catalog>.feature_tracker.features
+WHERE feature_key = 'Model Serving@AI / ML';
+```
+
+Other curated fields work the same way:
+
+```sql
+UPDATE <catalog>.feature_tracker.features
+SET blurb      = 'Serve models as low-latency APIs, e.g. real-time risk scoring on incoming claims.',
+    doc_link   = 'https://docs.databricks.com/aws/en/machine-learning/model-serving/',
+    priority   = 'High',                                  /* High | Medium | Low */
+    use_cases  = array('Risk scoring APIs', 'Fraud detection'),
+    updated_at = current_timestamp()
+WHERE feature_key = 'Model Serving@AI / ML';
+```
+
+- `feature_key` must match exactly: `Name@Domain`, including spaces and capitals. Step 1 gives you the value.
+- Separate limitations with `; `. The card subtitle shows the first one, and the drawer lists them all.
+- Escape apostrophes with a backslash (`metastore\'s`), or put the string in double quotes.
+- Keep limitations under about 300 characters, the length the monthly docs check works with.
+- The monthly docs check won't overwrite this text. Once limitations aren't empty, any difference it finds in
+  the docs is **HELD** for a person (see [Monthly documentation check](#monthly-documentation-check)).
+- Don't edit `dbx_phase` here. The weekly job owns it, and a phase change can make a feature PHI-eligible.
+  Accept or reject the held row in `proposed_changes` instead.
+- To make sure nobody changed the row since you looked, add `AND limitations = '<current text>'` to the `WHERE`.
+- To fix a mistake, use Delta time travel: `DESCRIBE HISTORY <catalog>.feature_tracker.features`, then
+  `RESTORE TABLE ... TO VERSION AS OF <n>`. That restores the whole table, so check what else changed since.
