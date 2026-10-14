@@ -248,9 +248,52 @@ Assistant** answers "why" and "what does the document say" with citations, and s
 ## Data sources of truth
 
 - **Axis A (phase)**: `platform.feature_tracker.features`, maintained by the job.
-- **Axis B (TRB)**: `platform.trb.reviews` and related tables, curated by people. The page reads the latest review per `feature_key`, and falls back to the seed value.
+- **Axis B (TRB)**: `platform.trb.reviews` and related tables, curated by people. The page reads the latest review per `feature_key`, and falls back to the seed value
+  (see [Updating TRB reviews and status](#updating-trb-reviews-and-status)).
 - **Curated text**: `data/features.json` in git is the seed. After the first run, edit the curated columns in `features`
   (see [Editing curated feature text](#editing-curated-feature-text)).
+
+## Updating TRB reviews and status
+
+TRB decisions live in `<catalog>.trb`, and the TRB secretariat updates them with SQL. The jobs only read these
+tables and never write TRB status, so no automated run can approve a feature for PHI. Each feature shows its
+newest review, picked by `latest_review_date` (`refresh-job/src/feature_tracker/common.py`). A feature with no
+review shows its seed status.
+
+A feature can have several reviews over time (a first review, then a re-review after GA or a rejection), and
+`review_id` is the key. Update one review, not every row for the feature.
+
+```sql
+/* 1. Find the feature's current review. */
+SELECT review_id, feature_key, current_trb_status, latest_review_date
+FROM <catalog>.trb.reviews
+WHERE feature_key = 'Genie One@SQL & BI Analytics'
+ORDER BY latest_review_date DESC;
+
+/* 2. Update that review. Naming the feature too means a wrong id changes 0 rows. */
+UPDATE <catalog>.trb.reviews
+SET current_trb_status = 'Approved',   /* Not Reviewed | Under Review | Approved with Conditions | Approved | Rejected | Retired */
+    latest_review_date = current_date(),   /* always bump: it decides which review the page shows */
+    decision_date      = current_date(),
+    open_questions     = NULL,             /* '; '-separated list shown in the drawer */
+    updated_at         = current_timestamp()
+WHERE review_id   = 'TRB-2026-005'
+  AND feature_key = 'Genie One@SQL & BI Analytics';
+
+/* 3. Keep the audit trail: one row per change. */
+INSERT INTO <catalog>.trb.review_history
+VALUES (uuid(), 'TRB-2026-005', current_date(), 'status_change', 'Approved with Conditions', 'Approved',
+        'TRB Chair', 'All conditions verified closed', NULL, current_timestamp());
+```
+
+- **PHI-eligible = GA and exactly `Approved`.** "Approved with Conditions" does not count. Close the review's
+  rows in `trb.approval_conditions` (`verification_status = 'Closed'`) first, then set the status to `Approved`.
+- `feature_key` must match the tracker exactly: `Name@Domain`, e.g. `Model Serving@AI / ML`.
+- **New review:** insert a row into `trb.reviews` with a new `review_id` and today's `latest_review_date`
+  (see `trb/table/ddl.sql` for the columns).
+- **When it shows up:** the Genie agent sees it immediately. The page shows it after the next `publish_site`
+  (the Monday run, or a manual run). The Knowledge Assistant reads only documents: add new minutes or decision
+  records as PDFs to `trb.corpus_pdf` and re-run `trb/ka/provision_ka.py`.
 
 ## Editing curated feature text
 
