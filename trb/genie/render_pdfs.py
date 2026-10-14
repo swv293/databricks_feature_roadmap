@@ -5,6 +5,10 @@
 Front-matter becomes a "Document control" table under the title, so document IDs, review IDs,
 feature keys and dates are in the PDF text (KA retrieval and citations depend on them).
 Uses the fe-specialized-agents markdown-to-pdf skill (WeasyPrint <67, offline: 67+ removed default_url_fetcher, which the script imports). Output: trb/docs/pdf/.
+
+OPTIONAL: the 74 PDFs are committed and name no catalog, so you only need this after editing a document.
+The converter is a Databricks-internal Claude Code plugin. Without it, point MARKDOWN_TO_PDF at any script
+that takes --input <md> --output <pdf>.
 """
 import argparse
 import glob
@@ -19,8 +23,8 @@ import tempfile
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 SRC = ROOT / "trb" / "docs" / "samples"
 OUT = ROOT / "trb" / "docs" / "pdf"
-SCRIPT = sorted(glob.glob(os.path.expanduser(
-    "~/.claude/plugins/cache/fe-vibe/fe-specialized-agents/*/skills/markdown-to-pdf/resources/markdown_to_pdf.py")))[-1]
+SCRIPT = os.environ.get("MARKDOWN_TO_PDF") or (sorted(glob.glob(os.path.expanduser(
+    "~/.claude/plugins/cache/fe-vibe/fe-specialized-agents/*/skills/markdown-to-pdf/resources/markdown_to_pdf.py"))) or [None])[-1]
 
 
 def split_front_matter(text):
@@ -61,6 +65,9 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--only", nargs="*")
     a = ap.parse_args()
+    if not SCRIPT:
+        sys.exit("No markdown-to-PDF converter found. The committed PDFs in trb/docs/pdf/ are current; to re-render, "
+                 "set MARKDOWN_TO_PDF to a script that takes --input <md> --output <pdf>.")
     OUT.mkdir(parents=True, exist_ok=True)
     env = {**os.environ, "DYLD_FALLBACK_LIBRARY_PATH": "/opt/homebrew/lib"}
     files = sorted(SRC.glob("*.md"))

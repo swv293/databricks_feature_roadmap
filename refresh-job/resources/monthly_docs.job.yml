@@ -96,6 +96,9 @@ resources:
               # !!! REMOVE IN PRODUCTION: mock-up banner. Set var.mockup_banner to "off" (see databricks.yml).
               - --mockup-banner
               - ${var.mockup_banner}
+              # "--name=value" form so an empty value is still one argument.
+              - --genie-url=${var.genie_url}
+              - --ka-url=${var.ka_url}
 
         - task_key: publish_github
           depends_on: [ { task_key: publish_site } ]
@@ -115,8 +118,7 @@ resources:
               - ${var.trb_schema}
               - --run-id
               - "{{job.run_id}}"
-              - --github-repo
-              - ${var.github_repo}
+              - --github-repo=${var.github_repo}
               - --pages-branch
               - ${var.pages_branch}
               - --secret-scope

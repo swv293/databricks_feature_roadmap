@@ -7,7 +7,8 @@ include:
 
 # Workspace-specific values have no defaults here. Set them for your environment in
 # .databricks/bundle/<target>/variable-overrides.json (gitignored), for example:
-#   {"catalog": "my_catalog", "genie_warehouse_id": "<warehouse id>", "github_repo": "<owner>/<pages repo>"}
+#   {"catalog": "my_catalog", "genie_warehouse_id": "<warehouse id>", "github_repo": "<owner>/<pages repo>",
+#    "genie_url": "https://<host>/genie/rooms/<space id>", "ka_url": "https://<host>/ml/endpoints/<ka endpoint>"}
 # or with --var name=value / BUNDLE_VAR_<name>. Choose the workspace with --profile <profile>.
 variables:
   catalog:
@@ -35,6 +36,12 @@ variables:
     default: "2026-10-13"
   github_repo:
     description: "PUBLIC site repo (<owner>/<repo>) that GitHub Pages serves; it holds only index.html. Empty = skip publish_github."
+    default: ""
+  genie_url:
+    description: "Link for the page's 'Open Genie agent' button (the Review Board agent's URL in your workspace). Empty = 'Not configured'."
+    default: ""
+  ka_url:
+    description: "Link for the page's 'Open Knowledge Assistant' button (its serving-endpoint page). Empty = 'Not configured'."
     default: ""
   pages_branch:
     description: Branch GitHub Pages serves

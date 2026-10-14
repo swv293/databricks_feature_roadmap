@@ -94,6 +94,12 @@ def js(obj):
     return json.dumps(obj, ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/")
 
 
+def assistant_link(url, el_id, label, var):
+    if not url:
+        return f'<span class="cta" id="{el_id}">Not configured: set the bundle variable <code>{var}</code></span>'
+    return f'<a class="cta" href="{html.escape(url)}" id="{el_id}" target="_blank" rel="noopener">{label} ↗</a>'
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--data-dir", default=ROOT / "data", type=pathlib.Path)
@@ -131,6 +137,9 @@ def main():
     if a.mockup_banner == "off":
         page = page[:page.index(start)] + page[page.index(end) + len(end):]
     for token, value in {
+        # Workspace links come from the bundle variables genie_url / ka_url (via meta.json).
+        "<!--@@GENIE_LINK@@-->": assistant_link(meta.get("genieUrl"), "genie-link", "Open Genie agent", "genie_url"),
+        "<!--@@KA_LINK@@-->": assistant_link(meta.get("kaUrl"), "ka-link", "Open Knowledge Assistant", "ka_url"),
         "/*@@DOMAINS@@*/[]": js(domains),
         "/*@@FEATURES@@*/[]": js(features),
         "/*@@META@@*/{}": js(meta),

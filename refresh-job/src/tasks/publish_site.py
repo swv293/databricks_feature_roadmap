@@ -17,7 +17,8 @@ from feature_tracker import history  # noqa: E402
 from feature_tracker.common import args, spark, trb_questions_by_key, trb_status_by_key  # noqa: E402
 
 a = args({"--feed-days": {"default": "60"},
-          "--mockup-banner": {"default": "on", "choices": ["on", "off"]}})
+          "--mockup-banner": {"default": "on", "choices": ["on", "off"]},
+          "--genie-url": {"default": ""}, "--ka-url": {"default": ""}})
 s = spark()
 root = pathlib.Path(a.bundle_root)
 trb = trb_status_by_key(s, a)
@@ -44,7 +45,7 @@ held = s.sql(f"SELECT count(*) n FROM {a.fq}.proposed_changes WHERE decision = '
 now = dt.datetime.now(dt.timezone.utc)
 # builtAt is fixed here (not by build_site) so a local rebuild from the same data is byte-identical.
 meta = {"refreshedAt": now.isoformat(timespec="seconds"), "builtAt": now.isoformat(timespec="seconds"),
-        "runId": a.run_id, "heldForTriage": held}
+        "runId": a.run_id, "heldForTriage": held, "genieUrl": a.genie_url, "kaUrl": a.ka_url}
 
 work = pathlib.Path(tempfile.mkdtemp())
 data = work / "data"
