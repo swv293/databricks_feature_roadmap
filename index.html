@@ -426,12 +426,15 @@ function render(){
     const sec=document.createElement("div");sec.className="domain";
     sec.innerHTML=`<div class="dhead"><span class="dname">${dom}</span><span class="dcount">${rows.length}</span><span class="chev">▾</span></div><div class="dbody"></div>`;
     const body=sec.querySelector(".dbody");
+    // Card subtitle: the first limitation, cut at a word boundary with an ellipsis (full text in the drawer).
+    const brief=(t,n=80)=>{const c=t.split(";")[0].trim();if(c.length<=n)return c+(c.length<t.trim().length?" …":"");
+      const w=c.slice(0,n);return w.slice(0,Math.max(w.lastIndexOf(" "),n/2)).replace(/[\s,(:/-]+$/,"")+"…";};
     rows.forEach(({f,child})=>{
       const phi=isPhi(f);
       const el=document.createElement("div");el.className="feat"+(child?" child":"");
       el.innerHTML=`
         <div class="frow">
-          <div class="fname">${f.name}${f.expected?` <small>expected ${f.expected}</small>`:(f.limitations&&!child?`<small>${f.limitations.slice(0,70)}</small>`:"")}</div>
+          <div class="fname">${f.name}${f.expected?` <small>expected ${f.expected}</small>`:(f.limitations&&!child?`<small title="${f.limitations.replace(/"/g,'&quot;')}">${brief(f.limitations)}</small>`:"")}</div>
           <div class="hide-sm">${miniTube(AXIS_A,f.dbxPhase,aColor)}</div>
           <div class="hide-sm">${miniTube(AXIS_B,f.enterpriseStatus,bColor)}</div>
           <span class="pill ${phi?'phi-ok':'phi-no'} hide-sm">${phi?'PHI-eligible':'No PHI'}</span>

@@ -51,6 +51,9 @@ High LLM confidence does not mean the text is about the right feature.
 - The model often adds prose after the JSON. `docs.parse_answer` reads the first JSON object only; keep it that way.
 - Filler answers ("no specific limits documented", "detailed in separate docs", just "Beta") are dropped by
   `docs.clean()`. Add new filler patterns there, with a test.
+- Asked for at most 300 characters, the LLM sometimes stops at exactly 300, mid-word ("pivot() function not supp").
+  `docs.clean()` drops the last clause of an answer at the cap. It also strips the LLM's notes about its source,
+  such as "(specific regions not detailed in excerpt)" (`META_NOTE`). Both slipped through on the first monthly run.
 - `databricks-claude-sonnet-5-5` is NOT enabled for batch `ai_query`; use `var.llm_endpoint` (sonnet-4-5).
 
 ## Running and deploying

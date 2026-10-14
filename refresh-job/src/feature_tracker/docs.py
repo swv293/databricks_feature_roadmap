@@ -179,12 +179,19 @@ FILLER = re.compile(r"\bno (specific|explicit|documented)\b|\bnot (documented|sp
                     r"|\b(detailed|described|documented|listed) (in|on) (a )?separate\b|^see\b|\brefer to\b"
                     # the phase alone is already on the page (Axis A)
                     r"|^(in )?(beta|public preview|private preview|preview)( availability| only| status)?$", re.I)
+# The LLM's notes about its source, e.g. "(specific regions not detailed in excerpt)".
+META_NOTE = re.compile(r"\s*\([^()]*\b(excerpt|truncated|unclear|not detailed|not specified|not stated)\b[^()]*\)", re.I)
 
 
 def clean(limitations):
-    """Drop filler clauses and cut at a clause boundary within MAX_LIMITATIONS_CHARS."""
+    """Drop filler clauses and cut at a clause boundary within MAX_LIMITATIONS_CHARS.
+    An answer at the length cap was cut off by the LLM mid-clause ("...pivot() function not supp"),
+    so its last clause is dropped."""
+    clauses = [META_NOTE.sub("", c).strip(" .") for c in (limitations or "").split(";")]
+    if len(limitations or "") >= MAX_LIMITATIONS_CHARS and len(clauses) > 1:
+        clauses = clauses[:-1]
     out = []
-    for clause in (c.strip(" .") for c in (limitations or "").split(";")):
+    for clause in clauses:
         if not clause or FILLER.search(clause):
             continue
         if len("; ".join(out + [clause])) > MAX_LIMITATIONS_CHARS:

@@ -66,3 +66,19 @@ def test_clean_drops_filler_and_cuts_at_clause_boundary():
     long = "; ".join(f"limit number {i} applies here" for i in range(30))
     out = docs.clean(long)
     assert len(out) <= docs.MAX_LIMITATIONS_CHARS and out.endswith("applies here")
+
+
+def test_clean_drops_clause_cut_off_at_the_length_cap():
+    # Real LLM answer (Lakeflow Declarative Pipelines, 2026-10-13): exactly 300 chars, cut mid-word.
+    cut = ("x" * 250) + "; streaming tables not writable to external systems; pivot() function not supp"
+    cut = cut[-docs.MAX_LIMITATIONS_CHARS:]
+    assert len(cut) == docs.MAX_LIMITATIONS_CHARS
+    assert docs.clean(cut).endswith("not writable to external systems")
+    assert docs.clean("one limit; another limit") == "one limit; another limit"
+
+
+def test_clean_drops_the_llms_notes_about_its_source():
+    assert docs.clean("Region availability is limited (specific regions not detailed in excerpt); 16 MB payload") == \
+        "Region availability is limited; 16 MB payload"
+    assert docs.clean("Fields are affected (documentation truncated, specific impact unclear)") == "Fields are affected"
+    assert docs.clean("Requires Runtime 15.4 LTS (or above)") == "Requires Runtime 15.4 LTS (or above)"
